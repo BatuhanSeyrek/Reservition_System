@@ -49,6 +49,7 @@ public class DtoConverter {
         dto.setChairName(reservation.getChair().getChairName());
         dto.setEmployeeName(reservation.getChair().getEmployee().getEmployeeName());
         dto.setUserName(reservation.getUser().getUserName());
+        dto.setReservationDate(reservation.getReservationDate());
         dto.setEmployeeName(reservation.getChair().getEmployee().getEmployeeName());
         return dto;
     }

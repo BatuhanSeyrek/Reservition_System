@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class StoreController {
         storeService.userReservationDelete(httpServletRequest,id);
 }
 @GetMapping("/getAvailableSlots/{id}")
-public Map<LocalTime, Boolean> getAvailableSlots(HttpServletRequest httpServletRequest,@PathVariable Long id) {
+public Map<LocalDate, Map<LocalTime, Boolean>> getAvailableSlots(HttpServletRequest httpServletRequest, @PathVariable Long id) {
         return storeService.getAvailableSlots(httpServletRequest,id);
 }
 }
