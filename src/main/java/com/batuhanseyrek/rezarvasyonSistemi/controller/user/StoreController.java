@@ -3,7 +3,7 @@ package com.batuhanseyrek.rezarvasyonSistemi.controller.user;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.request.ReservationRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoAdminFull;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.ReservationResponse;
-import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.Reservation;
+import com.batuhanseyrek.rezarvasyonSistemi.service.user.Impl.StoreServiceImpl;
 import com.batuhanseyrek.rezarvasyonSistemi.service.user.StoreService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;

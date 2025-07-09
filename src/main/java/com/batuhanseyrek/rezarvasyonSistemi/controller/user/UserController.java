@@ -4,6 +4,7 @@ import com.batuhanseyrek.rezarvasyonSistemi.dto.request.AuthRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.User;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.UserRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.security.JwtUtil;
+import com.batuhanseyrek.rezarvasyonSistemi.service.user.Impl.UserServiceImpl;
 import com.batuhanseyrek.rezarvasyonSistemi.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

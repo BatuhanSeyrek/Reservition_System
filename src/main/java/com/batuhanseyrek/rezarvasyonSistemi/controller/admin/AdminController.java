@@ -4,7 +4,7 @@ import com.batuhanseyrek.rezarvasyonSistemi.dto.request.AuthRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoAdmin;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Admin;
 import com.batuhanseyrek.rezarvasyonSistemi.service.admin.AdminService;
-import com.batuhanseyrek.rezarvasyonSistemi.service.admin.ChairService;
+import com.batuhanseyrek.rezarvasyonSistemi.service.admin.Impl.ChairServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import java.util.Map;
 @RequestMapping("/admin")
 public class AdminController {
     @Autowired
-    private ChairService adminSkillsService;
+    private ChairServiceImpl adminSkillsService;
     @Autowired
     private AdminService adminLoginRegisterService;
     private final AuthenticationManager authManager ;
