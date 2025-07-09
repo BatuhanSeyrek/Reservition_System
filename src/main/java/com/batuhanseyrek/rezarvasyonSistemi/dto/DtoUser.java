@@ -14,7 +14,7 @@ import java.sql.Time;
 @NoArgsConstructor
 public class DtoUser {
     private Integer id;
-
+    private String email;
     private String userName;
     private String password;
 }

@@ -19,6 +19,7 @@ public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private boolean reminderSent = false;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

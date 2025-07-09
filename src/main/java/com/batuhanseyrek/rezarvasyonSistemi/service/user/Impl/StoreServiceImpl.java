@@ -100,7 +100,7 @@ public class StoreServiceImpl implements StoreService {
         reservation.setReservationDate(reservationDate); // rezervasyon tarihini set et
         reservation.setStartTime(startTime);
         reservation.setEndTime(endTime);
-
+        reservation.setReminderSent(false);
         Reservation saved = reservationRepository.save(reservation);
         return DtoConverter.toDto(saved);
     }

@@ -61,6 +61,7 @@ public class UserServiceImpl implements UserService {
         User newUser = new User();
         newUser.setUserName(request.getUserName());
         newUser.setPassword(passwordEncoder.encode( request.getPassword()));
+        newUser.setEmail(request.getEmail());
         return ResponseEntity.ok().body(String.valueOf(userRepository.save(newUser))) ;
     }
     @Override
@@ -74,6 +75,7 @@ public class UserServiceImpl implements UserService {
             User existingUser = user1.get();
             existingUser.setUserName(user.getUserName());
             existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+            existingUser.setEmail(user.getEmail());
             return userRepository.save(existingUser);
         } else {
             // User bulunamadığında ne yapılacağına karar ver

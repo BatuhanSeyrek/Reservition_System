@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -22,4 +23,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("endTime") LocalTime endTime);
 
     List<Reservation> findByChairAndReservationDate(Chair chair, LocalDate currentDate);
+
+    @Query("SELECT r FROM Reservation r WHERE r.startTime BETWEEN :start AND :end AND r.reminderSent = false")
+    List<Reservation> findReservationsBetween(LocalDateTime start, LocalDateTime end);
+
 }
