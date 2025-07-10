@@ -1,14 +1,16 @@
 package com.batuhanseyrek.rezarvasyonSistemi.service.mail;
 
+import com.batuhanseyrek.rezarvasyonSistemi.entity.NotificationType;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.Reservation;
-import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.User;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.ReservationRepository;
+import com.batuhanseyrek.rezarvasyonSistemi.service.mail.MailService;
+import com.batuhanseyrek.rezarvasyonSistemi.service.sms.SmsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -20,43 +22,41 @@ public class ReminderScheduler {
     @Autowired
     private MailService mailService;
 
+    @Autowired
+    private SmsService smsService;
+
     @Scheduled(cron = "0 * * * * *") // Her dakika başında çalışır
-    public void sendReminderEmails() {
+    public void sendReminder() {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime targetTime = now.plusMinutes(30);
+        LocalDateTime target = now.plusMinutes(30);
 
-        LocalDateTime windowStart = targetTime.minusSeconds(30);
-        LocalDateTime windowEnd = targetTime.plusSeconds(30);
+        List<Reservation> reservations = reservationRepository.findAll();
 
-        List<Reservation> reservations = reservationRepository.findAll(); // Filtreyi manuel yapacağız
+        for (Reservation r : reservations) {
+            LocalDateTime resTime = LocalDateTime.of(r.getReservationDate(), r.getStartTime());
 
-        for (Reservation reservation : reservations) {
+            long minutesDiff = ChronoUnit.MINUTES.between(now, resTime);
+            if (!r.isReminderSent() && minutesDiff == 30) {
 
-            // Tarih + saat birleştirme
-            LocalDateTime reservationDateTime = LocalDateTime.of(reservation.getReservationDate(), reservation.getStartTime());
+                String name = r.getUser().getUserName();
+                String chair = r.getChair().getChairName();
+                String message = "Merhaba " + name + ",\n\n" +
+                        chair + " için randevunuz " + r.getStartTime() + "’da başlayacak. Lütfen zamanında hazır olun.";
 
-            if (!reservation.isReminderSent()
-                    && reservationDateTime.isAfter(windowStart)
-                    && reservationDateTime.isBefore(windowEnd)) {
+                NotificationType type = r.getUser().getNotificationType();
 
-                String email = reservation.getUser().getEmail();
-                String name = reservation.getUser().getUserName();
-                String chair = reservation.getChair().getChairName();
-
-                String subject = "Randevu Hatırlatma";
-                String text = "Merhaba " + name + ",\n\n" +
-                        "Randevunuz " + chair + " için saat " + reservation.getStartTime() + "’da başlayacak.\n" +
-                        "Lütfen zamanında hazır olun.";
-
-                try {
-                    mailService.sendMail(email, subject, text);
-                    reservation.setReminderSent(true);
-                    reservationRepository.save(reservation);
-                } catch (Exception e) {
-                    e.printStackTrace(); // logla
+                if (type == NotificationType.SMS || type == NotificationType.BOTH) {
+                    smsService.sendSms(r.getUser().getPhoneNumber(), message);
                 }
+
+                if (type == NotificationType.MAIL || type == NotificationType.BOTH) {
+                    String html = "<h3>Randevu Hatırlatma</h3><p>" + message.replace("\n", "<br/>") + "</p>";
+                    mailService.sendHtmlMail(r.getUser().getEmail(), "Randevu Hatırlatma", html);
+                }
+
+                r.setReminderSent(true);
+                reservationRepository.save(r);
             }
         }
     }
-
 }
