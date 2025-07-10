@@ -44,16 +44,23 @@ public class ReminderScheduler {
                         chair + " için randevunuz " + r.getStartTime() + "’da başlayacak. Lütfen zamanında hazır olun.";
 
                 NotificationType type = r.getUser().getNotificationType();
-
-                if (type == NotificationType.SMS || type == NotificationType.BOTH) {
-                    smsService.sendSms(r.getUser().getPhoneNumber(), message);
+                switch (type){
+                    case SMS -> {
+                        smsService.sendSms(r.getUser().getPhoneNumber(), message);
+                        break;
+                    }
+                    case MAIL -> {
+                        String html = "<h3>Randevu Hatırlatma</h3><p>" + message.replace("\n", "<br/>") + "</p>";
+                        mailService.sendHtmlMail(r.getUser().getEmail(), "Randevu Hatırlatma", html);
+                        break;
+                    }
+                    default -> {
+                        smsService.sendSms(r.getUser().getPhoneNumber(), message);
+                        String html = "<h3>Randevu Hatırlatma</h3><p>" + message.replace("\n", "<br/>") + "</p>";
+                        mailService.sendHtmlMail(r.getUser().getEmail(), "Randevu Hatırlatma", html);
+                        break;
+                    }
                 }
-
-                if (type == NotificationType.MAIL || type == NotificationType.BOTH) {
-                    String html = "<h3>Randevu Hatırlatma</h3><p>" + message.replace("\n", "<br/>") + "</p>";
-                    mailService.sendHtmlMail(r.getUser().getEmail(), "Randevu Hatırlatma", html);
-                }
-
                 r.setReminderSent(true);
                 reservationRepository.save(r);
             }
