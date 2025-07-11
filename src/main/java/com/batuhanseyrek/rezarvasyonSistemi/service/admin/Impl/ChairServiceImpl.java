@@ -28,7 +28,7 @@ public class ChairServiceImpl implements ChairService {
     private DtoConverter dtoConverter;
     @Override
     public DtoChair chairAdd(DtoChair request, HttpServletRequest httpRequest) {
-        Long adminId = null;
+
         Object attr = httpRequest.getAttribute("adminId"); // <-- Interceptor'dan gelen değer
         Admin admin = adminRepository.findById((Long) attr)
                 .orElseThrow(() -> new RuntimeException("Admin bulunamadı"));
