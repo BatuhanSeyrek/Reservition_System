@@ -2,6 +2,7 @@ package com.batuhanseyrek.rezarvasyonSistemi.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -23,5 +24,12 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(userInterceptor)
                 .addPathPatterns("/store/create/**","/store/userReservationGet/**","/store/userReservationDelete/**","/store/reservationUpdate/**","/store/getAvailableSlots/**"); // İstediğin pathleri ekle
 
+    }
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:3000") // React çalıştığı port
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedHeaders("*");
     }
 }

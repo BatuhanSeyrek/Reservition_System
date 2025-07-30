@@ -1,6 +1,8 @@
 package com.batuhanseyrek.rezarvasyonSistemi.Service;
 
 
+import com.batuhanseyrek.rezarvasyonSistemi.dto.DtoConverter;
+import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoChair;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoEmployee;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Employee;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.EmployeeRepository;
@@ -9,10 +11,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class EmployeeServiceTest {
@@ -33,6 +39,24 @@ public class EmployeeServiceTest {
         DtoEmployee dto2=new DtoEmployee();
         dto2.setEmployeeName("Batu2");
         Mockito.when(employeeRepository.findAll()).thenReturn(employees);
+        try (MockedStatic<DtoConverter> mockStatic = Mockito.mockStatic(DtoConverter.class)) {
+            mockStatic.when(() -> DtoConverter.toDto(employee1)).thenReturn(dto1);
+            mockStatic.when(() -> DtoConverter.toDto(employee2)).thenReturn(dto2);
 
+            List<DtoEmployee> result=employeeService.employeeList();
+
+            assertEquals(2, result.size());
+            assertEquals("Masa 1",result.get(0).getEmployeeName());
+            assertEquals("Masa 2",result.get(1).getEmployeeName());
+
+            verify(employeeRepository).findAll();
+
+            mockStatic.verify(() -> DtoConverter.toDto(employee1));
+            mockStatic.verify(() -> DtoConverter.toDto(employee2));
+
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
+        }
     }
 }

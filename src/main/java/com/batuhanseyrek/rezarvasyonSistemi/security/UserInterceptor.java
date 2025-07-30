@@ -45,6 +45,7 @@ public class UserInterceptor implements HandlerInterceptor {
                 .map(user -> user.getId()) // Eğer Admin bulunur ve getId() metodu Long döndürürse
                 .orElse(null)); // Eğer Admin bulunamazsa adminId null olur
 
+
 // Şimdi adminId'nin null olup olmadığını kontrol edebilirsiniz
         if (userId == null) {
             System.err.println("AdminInterceptor: Token'dan gelen adminName '" + userName + "' ile Admin bulunamadı.");
