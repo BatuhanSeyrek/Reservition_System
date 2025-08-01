@@ -34,6 +34,22 @@ public class AdminServiceImpl implements AdminService {
     public JwtUtil jwtUtil;
     @Autowired
     public AdminRepository adminRepository;
+
+
+    @Override
+    public Admin myApp(HttpServletRequest httpRequest) {
+        Object attr = httpRequest.getAttribute("adminId"); // <-- Interceptor'dan gelen değer
+        Admin admin = adminRepository.findById((Long) attr)
+                .orElseThrow(() -> new RuntimeException("Admin bulunamadı"));
+        Admin newadmin=new Admin();
+        newadmin.setAdminName(admin.getAdminName());
+        newadmin.setId(admin.getId());
+        newadmin.setChairCount(admin.getChairCount());
+        newadmin.setPassword(passwordEncoder.encode(admin.getPassword()));
+        newadmin.setStoreName(admin.getStoreName());
+        return newadmin;
+    }
+
     @Override
     public Map<String,Object> mapping(AuthRequest request){
         try{
@@ -76,6 +92,7 @@ public class AdminServiceImpl implements AdminService {
     public void adminDelete(Long id){
         adminRepository.deleteById(id);
     }
+
     @Override
     public ResponseEntity<?> adminUpdate(Admin request, HttpServletRequest httpRequest){
         Long adminId = null;

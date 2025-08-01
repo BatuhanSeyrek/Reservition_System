@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -31,6 +30,10 @@ public class AdminController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody AuthRequest request){
         return ResponseEntity.ok(adminLoginRegisterService.mapping(request));
+    }
+    @GetMapping("/myAdmin")
+    public Admin myApp(HttpServletRequest httpServletRequest){
+       return adminLoginRegisterService.myApp(httpServletRequest);
     }
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody Admin request){

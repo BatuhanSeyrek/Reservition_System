@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface AdminService {
+    Admin myApp(HttpServletRequest request);
     Map<String,Object> mapping(AuthRequest request);
     ResponseEntity<String> register(Admin request);
     List<DtoAdmin> adminList();
