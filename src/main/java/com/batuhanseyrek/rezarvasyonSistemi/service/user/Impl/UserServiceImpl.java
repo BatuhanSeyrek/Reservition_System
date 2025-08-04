@@ -2,10 +2,12 @@ package com.batuhanseyrek.rezarvasyonSistemi.service.user.Impl;
 
 import com.batuhanseyrek.rezarvasyonSistemi.dto.DtoUser;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.request.AuthRequest;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Admin;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.User;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.UserRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.security.JwtUtil;
 import com.batuhanseyrek.rezarvasyonSistemi.service.user.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +54,20 @@ public class UserServiceImpl implements UserService {
         responseMap.put("userName",request.getUsername());
         responseMap.put("id",user.get().getId());
         return responseMap;
+    }
+    @Override
+    public User myApp(HttpServletRequest httpRequest) {
+        Object attr = httpRequest.getAttribute("userId"); // <-- Interceptor'dan gelen değer
+        User user = userRepository.findById((Long) attr)
+                .orElseThrow(() -> new RuntimeException("Admin bulunamadı"));
+        User newuser=new User();
+        newuser.setUserName(user.getUserName());
+        newuser.setId(user.getId());
+        newuser.setPassword(user.getPassword());
+        newuser.setEmail(user.getEmail());
+        newuser.setPhoneNumber(user.getPhoneNumber());
+        newuser.setNotificationType(user.getNotificationType());
+        return newuser;
     }
     @Override
     public ResponseEntity<String> register(DtoUser request){
