@@ -44,9 +44,9 @@ public ResponseEntity<String> register(@RequestBody() DtoUser request){
 public List<User> userList(){
     return userService.userList();
 }
-@PutMapping("/update/{id}")
-    public User userUpdate(@PathVariable Long id,@RequestBody User user){
-        return userService.userUpdate(id,user);
+@PutMapping("/update")
+    public User userUpdate(HttpServletRequest httpServletRequest,@RequestBody User user){
+        return userService.userUpdate(httpServletRequest,user);
 }
 @DeleteMapping("/delete/{id}")
     public void userDelete(@PathVariable Long id){

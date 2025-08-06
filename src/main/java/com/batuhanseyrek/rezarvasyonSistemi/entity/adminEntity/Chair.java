@@ -34,5 +34,11 @@ public class Chair {
     @JoinColumn(name = "admin_id") // FK chair tablosuna yazılır
     @JsonIgnore
     private Admin admin;
+    @PrePersist
+    public void setDefaultIslemSuresi() {
+        if (islemSuresi == null) {
+            this.islemSuresi = new Time(1 * 60 * 60 * 1000); // 1 saat = 3600000 ms
+        }
+    }
 
 }

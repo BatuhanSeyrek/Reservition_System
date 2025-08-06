@@ -43,7 +43,7 @@ public class DtoConverter {
     }
     public static ReservationResponse toDto(Reservation reservation) {
         ReservationResponse dto = new ReservationResponse();
-
+        dto.setId(reservation.getId());
         dto.setStartTime(reservation.getStartTime());
         dto.setEndTime(reservation.getEndTime());
         dto.setChairName(reservation.getChair().getChairName());

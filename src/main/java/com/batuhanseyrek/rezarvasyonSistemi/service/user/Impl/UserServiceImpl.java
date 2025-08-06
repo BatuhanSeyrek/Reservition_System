@@ -87,8 +87,9 @@ public class UserServiceImpl implements UserService {
        return userRepository.findAll();
     }
     @Override
-    public User userUpdate(Long id, User user){
-        Optional<User> user1 = userRepository.findById(id);
+    public User userUpdate(HttpServletRequest httpServletRequest, User user){
+        Object id = httpServletRequest.getAttribute("userId");
+        Optional<User> user1 = userRepository.findById((Long) id);
         if (user1.isPresent()) {
             User existingUser = user1.get();
             existingUser.setUserName(user.getUserName());

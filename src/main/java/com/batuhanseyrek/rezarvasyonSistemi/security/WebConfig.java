@@ -25,12 +25,5 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/store/create/**","/store/userReservationGet/**","/store/userReservationDelete/**","/store/reservationUpdate/**","/store/getAvailableSlots/**","/user/myUser"); // İstediğin pathleri ekle
 
     }
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173","https://109da8a5c0f8.ngrok-free.app") // React çalıştığı port
-                .allowedMethods("GET", "POST", "PUT", "DELETE","OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true);
-    }
+
 }

@@ -15,6 +15,6 @@ public interface UserService {
     Map<String,Object> mapping(AuthRequest request);
     ResponseEntity<String> register(DtoUser request);
     List<User> userList();
-    User userUpdate(Long id, User user);
+    User userUpdate(HttpServletRequest httpServletRequest, User user);
     ResponseEntity<?> userDelete(Long id);
 }

@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 @Data
 public class ReservationResponse {
-
+    private Long id;
     private LocalTime startTime;
     private LocalTime endTime;
     private String chairName;
