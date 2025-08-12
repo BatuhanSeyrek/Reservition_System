@@ -1,7 +1,9 @@
 package com.batuhanseyrek.rezarvasyonSistemi.controller.admin;
 
+import com.batuhanseyrek.rezarvasyonSistemi.dto.DtoConverter;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoChair;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Chair;
+import com.batuhanseyrek.rezarvasyonSistemi.repository.ChairRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.service.admin.ChairService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +11,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admin/chair")
 public class ChairController {
+    @Autowired
+    private ChairRepository chairRepository;
     @Autowired
     private ChairService adminSkillsService;
     @PostMapping(path = "/chairAdd")
@@ -31,4 +36,10 @@ public class ChairController {
     public ResponseEntity<?> chairUpdate(@PathVariable Long id , @RequestBody Chair chair){
         return adminSkillsService.chairUpdate(id,chair);
     }
+
+    @GetMapping("/chairget")
+    public List<DtoChair> getChairsByAdmin( HttpServletRequest httpServletRequest) {
+        return adminSkillsService.getChairsByAdmin(httpServletRequest);
+    }
+
 }

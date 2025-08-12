@@ -1,10 +1,7 @@
 package com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 
@@ -13,10 +10,9 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"chairs", "employees"}) // 🔥 Kritik satır bu
+@ToString(exclude = {"chairs", "employees", "store"})
 public class Admin {
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -26,11 +22,8 @@ public class Admin {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "chairCount")
-    private Integer chairCount;
-
-    @Column(name = "storeName")
-    private String storeName;
+    @OneToOne(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Store store;
 
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chair> chairs;

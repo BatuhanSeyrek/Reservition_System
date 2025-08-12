@@ -1,5 +1,6 @@
 package com.batuhanseyrek.rezarvasyonSistemi.controller.admin;
 
+import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoChair;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoEmployee;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Employee;
 import com.batuhanseyrek.rezarvasyonSistemi.service.admin.EmployeeService;
@@ -32,4 +33,9 @@ public class EmployeeController {
         employeeService.employeeUpdate(id,employee);
         return ResponseEntity.ok("Güncelleme işlemleri tamamlanmıştır");
     }
+    @GetMapping("/employeeget")
+    public List<DtoEmployee> getEmployeeByAdmin( HttpServletRequest httpServletRequest) {
+        return employeeService.getEmployeeByAdmin(httpServletRequest);
+    }
+
 }

@@ -1,10 +1,13 @@
 package com.batuhanseyrek.rezarvasyonSistemi.controller.user;
 
+import com.batuhanseyrek.rezarvasyonSistemi.dto.DtoConverter;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.request.ReservationRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoAdminFull;
+import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoChair;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.ReservationResponse;
-import com.batuhanseyrek.rezarvasyonSistemi.service.user.Impl.StoreServiceImpl;
-import com.batuhanseyrek.rezarvasyonSistemi.service.user.StoreService;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Chair;
+import com.batuhanseyrek.rezarvasyonSistemi.repository.ChairRepository;
+import com.batuhanseyrek.rezarvasyonSistemi.service.user.ReservationService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +17,15 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/store")
-public class StoreController {
+public class ReservationController {
     @Autowired
-    public StoreService storeService;
+    public ReservationService storeService;
+    @Autowired
+    private ChairRepository chairRepository;
 
     @GetMapping(path = "/storeAll")
     public List<DtoAdminFull> storeAll(){
@@ -53,7 +59,11 @@ public class StoreController {
         storeService.userReservationDelete(httpServletRequest,id);
 }
 @GetMapping("/getAvailableSlots/{id}")
-public Map<LocalDate, Map<LocalTime, Boolean>> getAvailableSlots(HttpServletRequest httpServletRequest, @PathVariable Long id) {
-        return storeService.getAvailableSlots(httpServletRequest,id);
+public List<Map<String, Object>> getAvailableSlots(@PathVariable Long id) {
+        return storeService.getAvailableSlots(id);
 }
+    @GetMapping("/chairgetbystore/{storeId}")
+    public List<DtoChair> getChairsByStore(@PathVariable Long storeId) {
+        return storeService.getChairsByStore(storeId);
+    }
 }

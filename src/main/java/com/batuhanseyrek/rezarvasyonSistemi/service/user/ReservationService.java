@@ -2,7 +2,9 @@ package com.batuhanseyrek.rezarvasyonSistemi.service.user;
 
 import com.batuhanseyrek.rezarvasyonSistemi.dto.request.ReservationRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoAdminFull;
+import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoChair;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.ReservationResponse;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Chair;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.LocalDate;
@@ -10,7 +12,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
-public interface StoreService {
+public interface ReservationService {
     List<DtoAdminFull> storeAll();
     ReservationResponse rezrvationAdd(ReservationRequest request, HttpServletRequest httpRequest);
     List<ReservationResponse> reservationList();
@@ -18,5 +20,6 @@ public interface StoreService {
     ReservationResponse reservationUpdate(ReservationResponse request, Long id, HttpServletRequest httpServletRequest);
     List<ReservationResponse> userReservationGet(HttpServletRequest httpServletRequest);
     void userReservationDelete(HttpServletRequest httpServletRequest,Long id);
-    Map<LocalDate, Map<LocalTime, Boolean>> getAvailableSlots(HttpServletRequest httpServletRequest, Long id);
+    List<Map<String, Object>> getAvailableSlots(Long id);
+    List<DtoChair> getChairsByStore(Long storeId);
 }

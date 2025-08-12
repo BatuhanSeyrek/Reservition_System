@@ -3,6 +3,7 @@ package com.batuhanseyrek.rezarvasyonSistemi.controller.admin;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.request.AuthRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoAdmin;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Admin;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.DtoRegisterAdmin;
 import com.batuhanseyrek.rezarvasyonSistemi.service.admin.AdminService;
 import com.batuhanseyrek.rezarvasyonSistemi.service.admin.Impl.ChairServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,11 +34,11 @@ public class AdminController {
         return ResponseEntity.ok(adminLoginRegisterService.mapping(request));
     }
     @GetMapping("/myAdmin")
-    public Admin myApp(HttpServletRequest httpServletRequest){
+    public DtoRegisterAdmin myApp(HttpServletRequest httpServletRequest){
        return adminLoginRegisterService.myApp(httpServletRequest);
     }
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody Admin request){
+    public ResponseEntity<String> register(@RequestBody DtoRegisterAdmin request){
         adminLoginRegisterService.register(request);
         return ResponseEntity.ok("Kayıt başarılı");
     }
@@ -50,7 +51,7 @@ public class AdminController {
         adminLoginRegisterService.adminDelete(id);
     }
     @PutMapping("/update")
-    public void adminUpdate(@RequestBody Admin admin, HttpServletRequest httpRequest){
+    public void adminUpdate(@RequestBody DtoRegisterAdmin admin, HttpServletRequest httpRequest){
         adminLoginRegisterService.adminUpdate(admin,httpRequest);
     }
 }

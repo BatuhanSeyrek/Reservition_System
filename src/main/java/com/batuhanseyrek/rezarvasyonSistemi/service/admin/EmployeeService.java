@@ -12,4 +12,5 @@ public interface EmployeeService {
     List<DtoEmployee> employeeList();
     void employeeDelete(Long id);
     ResponseEntity<?> employeeUpdate(Long id, Employee request);
+    List<DtoEmployee> getEmployeeByAdmin( HttpServletRequest httpServletRequest);
 }

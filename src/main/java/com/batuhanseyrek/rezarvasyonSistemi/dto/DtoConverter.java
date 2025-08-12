@@ -1,17 +1,15 @@
 package com.batuhanseyrek.rezarvasyonSistemi.dto;
 
-import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoAdmin;
-import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoChair;
-import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoEmployee;
-import com.batuhanseyrek.rezarvasyonSistemi.dto.response.ReservationResponse;
-import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Admin;
-import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Chair;
-import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Employee;
+import com.batuhanseyrek.rezarvasyonSistemi.dto.response.*;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.*;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.Reservation;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DtoConverter {
+
+
+
     public static DtoEmployee toDto(Employee employee) {
         DtoEmployee dto = new DtoEmployee();
         dto.setId(employee.getId());
@@ -29,6 +27,7 @@ public class DtoConverter {
         dto.setClosingTime(chair.getClosingTime());
         dto.setIslemSuresi(chair.getIslemSuresi());
         dto.setAdminId(chair.getAdmin() != null ? chair.getAdmin().getId() : null);
+        dto.setStoreId(chair.getStore() != null ? chair.getStore().getId() : null);
         return dto;
     }
 
@@ -36,21 +35,49 @@ public class DtoConverter {
         DtoAdmin dto = new DtoAdmin();
         dto.setId(admin.getId());
         dto.setAdminName(admin.getAdminName());
-        dto.setStoreName(admin.getStoreName());
-        dto.setChairCount(admin.getChairCount());
-
+        // StoreId kaldırıldı, çünkü admin entity'de yok
         return dto;
     }
+
+    public static DtoStore toDto(Store store) {
+        DtoStore dto = new DtoStore();
+        dto.setId(store.getId());
+        dto.setStoreName(store.getStoreName());
+        dto.setChairCount(store.getChairCount());
+        dto.setAdminId(store.getAdmin() != null ? store.getAdmin().getId() : null);
+        return dto;
+    }
+
     public static ReservationResponse toDto(Reservation reservation) {
         ReservationResponse dto = new ReservationResponse();
         dto.setId(reservation.getId());
         dto.setStartTime(reservation.getStartTime());
         dto.setEndTime(reservation.getEndTime());
-        dto.setChairName(reservation.getChair().getChairName());
-        dto.setEmployeeName(reservation.getChair().getEmployee().getEmployeeName());
-        dto.setUserName(reservation.getUser().getUserName());
         dto.setReservationDate(reservation.getReservationDate());
-        dto.setEmployeeName(reservation.getChair().getEmployee().getEmployeeName());
+        dto.setChairId(reservation.getChair().getId());
+        dto.setChairName(
+                reservation.getChair() != null ? reservation.getChair().getChairName() : null
+        );
+
+        dto.setUserName(
+                reservation.getUser() != null ? reservation.getUser().getUserName() : null
+        );
+
+        dto.setEmployeeName(
+                (reservation.getChair() != null &&
+                        reservation.getChair().getEmployee() != null)
+                        ? reservation.getChair().getEmployee().getEmployeeName()
+                        : null
+        );
+
+        dto.setStoreId(
+                reservation.getStore() != null ? reservation.getStore().getId() : null
+        );
+
+        dto.setStoreName(
+                reservation.getStore() != null ? reservation.getStore().getStoreName() : null
+        );
+
         return dto;
     }
 }

@@ -8,8 +8,10 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface ChairService {
+    List<DtoChair> getChairsByAdmin( HttpServletRequest httpServletRequest);
     DtoChair chairAdd(DtoChair request, HttpServletRequest httpRequest);
     List<DtoChair> chairList();
     void chairDelete(Long id);
     ResponseEntity<?> chairUpdate(Long id, Chair chair);
+
 }

@@ -34,32 +34,32 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         Long adminId = (Long) attr;
 
-        // 2. Admin'i bul
+        // Admin'i bul
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Admin bulunamadı"));
 
-        // 3. Chair nesnesini getir
-        Chair chair = chairRepository.findById(Long.valueOf(request.getChairId()))
+        // Chair nesnesini getir
+        Chair chair = chairRepository.findById(request.getChairId())
                 .orElseThrow(() -> new RuntimeException("Koltuk bulunamadı."));
-        List<Employee> employees=employeeRepository.findAll();
-        int deger=0;
-        for (Employee employee: employees){
-            deger++;
-        }
-        if (deger < admin.getChairCount()) {
+
+        // Admin'in sahip olduğu sandalye sayısı
+        int adminChairCount = (admin.getChairs() != null) ? admin.getChairs().size() : 0;
+
+        // Admin'in atanmış çalışan sayısı
+        int employeeCount = (admin.getEmployees() != null) ? admin.getEmployees().size() : 0;
+
+        // Kontrol: çalışan sayısı sandalye sayısından küçük olmalı
+        if (employeeCount < adminChairCount) {
             Employee employee = new Employee();
             employee.setEmployeeName(request.getEmployeeName());
             employee.setChair(chair);
             employee.setAdmin(admin);
 
-            // 5. Kaydet ve DTO olarak döndür
             Employee savedEmployee = employeeRepository.save(employee);
             return DtoConverter.toDto(savedEmployee);
-        }
-        else {
+        } else {
             throw new RuntimeException("Employee için maksimum sandalye sayısına ulaşıldı.");
         }
-
     }
 
     public List<DtoEmployee> employeeList(){
@@ -108,5 +108,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         return ResponseEntity.badRequest().body("Böyle bir kullanıcı yok.");
     }
 
+    @Override
+    public List<DtoEmployee> getEmployeeByAdmin(HttpServletRequest httpServletRequest) {
+        Object attr = httpServletRequest.getAttribute("adminId");
+        Long adminId = (Long) attr;  // Güvenli dönüşüm için kontrol ekleyebilirsin
+        List<Employee> employees = employeeRepository.findByAdmin_Id(adminId);
+        return employees.stream()
+                .map(DtoConverter::toDto)
+                .collect(Collectors.toList());
+    }
 
 }

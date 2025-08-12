@@ -7,7 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DtoAdmin {
+public class DtoStore {
     private Long id;
-    private String adminName;
+    private String storeName;
+    private Integer chairCount;
+    private Long adminId;
+    private Long employeeId;
+    private Long reservationsId;
 }

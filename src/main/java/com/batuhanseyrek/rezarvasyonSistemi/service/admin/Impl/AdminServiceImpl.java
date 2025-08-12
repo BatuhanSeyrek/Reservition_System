@@ -4,7 +4,10 @@ import com.batuhanseyrek.rezarvasyonSistemi.dto.DtoConverter;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.request.AuthRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoAdmin;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Admin;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.DtoRegisterAdmin;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Store;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.AdminRepository;
+import com.batuhanseyrek.rezarvasyonSistemi.repository.StoreRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.security.JwtUtil;
 import com.batuhanseyrek.rezarvasyonSistemi.service.admin.AdminService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,86 +27,112 @@ import java.util.stream.Collectors;
 
 @Service
 public class AdminServiceImpl implements AdminService {
+
     @Autowired
     public DtoConverter dtoConverter;
+
     @Autowired
     public PasswordEncoder passwordEncoder;
+
     @Autowired
     public AuthenticationManager authManager;
+
     @Autowired
     public JwtUtil jwtUtil;
+
     @Autowired
     public AdminRepository adminRepository;
 
-
+    @Autowired
+    private StoreRepository storeRepository;
     @Override
-    public Admin myApp(HttpServletRequest httpRequest) {
-        Object attr = httpRequest.getAttribute("adminId"); // <-- Interceptor'dan gelen değer
+    public DtoRegisterAdmin myApp(HttpServletRequest httpRequest) {
+        Object attr = httpRequest.getAttribute("adminId");
         Admin admin = adminRepository.findById((Long) attr)
                 .orElseThrow(() -> new RuntimeException("Admin bulunamadı"));
-        Admin newadmin=new Admin();
-        newadmin.setAdminName(admin.getAdminName());
-        newadmin.setId(admin.getId());
-        newadmin.setChairCount(admin.getChairCount());
-        newadmin.setPassword(passwordEncoder.encode(admin.getPassword()));
-        newadmin.setStoreName(admin.getStoreName());
-        return newadmin;
+        Store store=storeRepository.findById((Long) attr).orElseThrow(() -> new RuntimeException("Store bulunamadı"));
+        DtoRegisterAdmin newAdmin = new DtoRegisterAdmin();
+        newAdmin.setId(admin.getId());
+        newAdmin.setAdminName(admin.getAdminName());
+        newAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
+        newAdmin.setStoreName(store.getStoreName());
+        newAdmin.setChairCount(store.getChairCount());
+        return newAdmin;
     }
 
     @Override
-    public Map<String,Object> mapping(AuthRequest request){
-        try{
-            authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(),request.getPassword()));
-        }
-        catch (Exception e){
+    public Map<String, Object> mapping(AuthRequest request) {
+        try {
+            authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        } catch (Exception e) {
             Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("status", HttpStatus.UNAUTHORIZED.value()); // 401
-            errorResponse.put("error",e.getMessage());
+            errorResponse.put("status", HttpStatus.UNAUTHORIZED.value());
+            errorResponse.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse).getBody();
         }
+
         String token = jwtUtil.generateToken(request.getUsername());
-        Optional<Admin> admin= adminRepository.findByAdminName(request.getUsername());
-        Map<String,Object> reponseMap=new HashMap<>();
-        reponseMap.put("token",token);
-        reponseMap.put("name",request.getUsername());
-        reponseMap.put("id",admin.get().getId());
-        return reponseMap;
+        Optional<Admin> admin = adminRepository.findByAdminName(request.getUsername());
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("token", token);
+        responseMap.put("name", request.getUsername());
+        responseMap.put("id", admin.get().getId());
+
+        return responseMap;
     }
+
     @Override
-    public ResponseEntity<String> register(Admin request){
-        if (adminRepository.findByAdminName(request.getAdminName()).isPresent()){
+    public ResponseEntity<String> register(DtoRegisterAdmin request) {
+        if (adminRepository.findByAdminName(request.getAdminName()).isPresent()) {
             return ResponseEntity.badRequest().body("İsim önden kullanılmış");
         }
-        Admin admin=new Admin();
+
+        Admin admin = new Admin();
         admin.setAdminName(request.getAdminName());
         admin.setPassword(passwordEncoder.encode(request.getPassword()));
-        admin.setChairCount(0);
-        admin.setStoreName(request.getStoreName());
-        adminRepository.save(admin);
-        return ResponseEntity.ok("Kayıt başarılı");
 
+        // Store, chairs ve employees henüz eklenmemiş olabilir.
+        admin.setStore(null);
+        admin.setChairs(null);
+        admin.setEmployees(null);
+
+        adminRepository.save(admin);
+        Store store =new Store();
+        store.setChairCount(0);
+        store.setStoreName(request.getStoreName());
+        store.setAdmin(admin);
+        storeRepository.save(store);
+
+        return ResponseEntity.ok("Kayıt başarılı");
     }
+
     @Override
-    public List<DtoAdmin> adminList(){
-        List<Admin> admin = adminRepository.findAll();
-        return admin.stream().map(DtoConverter::toDto).collect(Collectors.toList());
+    public List<DtoAdmin> adminList() {
+        List<Admin> admins = adminRepository.findAll();
+        return admins.stream().map(DtoConverter::toDto).collect(Collectors.toList());
     }
+
     @Override
-    public void adminDelete(Long id){
+    public void adminDelete(Long id) {
         adminRepository.deleteById(id);
     }
 
     @Override
-    public ResponseEntity<?> adminUpdate(Admin request, HttpServletRequest httpRequest){
-        Long adminId = null;
-        Object attr = httpRequest.getAttribute("adminId"); // <-- Interceptor'dan gelen değer
+    public ResponseEntity<?> adminUpdate(DtoRegisterAdmin request, HttpServletRequest httpRequest) {
+        Object attr = httpRequest.getAttribute("adminId");
         Admin admin = adminRepository.findById((Long) attr)
                 .orElseThrow(() -> new RuntimeException("Admin bulunamadı"));
+        Store store=storeRepository.findById((Long) attr)
+                .orElseThrow(() -> new RuntimeException("Store bulunamadı"));
         admin.setAdminName(request.getAdminName());
         admin.setPassword(passwordEncoder.encode(request.getPassword()));
-        admin.setChairCount(request.getChairCount());
-        admin.setStoreName(request.getStoreName());
+
+
         adminRepository.save(admin);
-        return ResponseEntity.ok("işlem başarılı");
+        store.setStoreName(request.getStoreName());
+        storeRepository.save(store);
+        return ResponseEntity.ok("İşlem başarılı");
     }
 }
