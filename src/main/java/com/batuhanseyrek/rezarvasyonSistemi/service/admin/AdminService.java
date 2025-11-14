@@ -17,4 +17,5 @@ public interface AdminService {
     List<DtoAdmin> adminList();
     void adminDelete(Long id);
     ResponseEntity<?> adminUpdate(DtoRegisterAdmin request, HttpServletRequest httpRequest);
+
 }

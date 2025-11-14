@@ -107,8 +107,8 @@ public class AdminServiceImpl implements AdminService {
         admin.setPassword(passwordEncoder.encode(request.getPassword()));
         admin.setStatus(true);
         admin.setPhoneNumber(request.getPhoneNumber());
-        admin.setStartTime(LocalTime.from(LocalDateTime.now())); // Şu anki tarih ve saat
-        admin.setEndTime(LocalTime.from(LocalDateTime.now().plusDays(32))); // 32 gün sonrası
+        admin.setStartTime(LocalDateTime.now()); // Şu anki tarih ve saat
+        admin.setEndTime(LocalDateTime.now().plusDays(32)); // 32 gün sonrası
         // Store, chairs ve employees henüz eklenmemiş olabilir.
         admin.setStore(null);
         admin.setChairs(null);

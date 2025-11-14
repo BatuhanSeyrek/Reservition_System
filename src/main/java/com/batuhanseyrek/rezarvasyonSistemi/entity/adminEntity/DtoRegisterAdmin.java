@@ -1,7 +1,9 @@
 package com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
@@ -12,8 +14,11 @@ public class DtoRegisterAdmin {
     private String adminName;
     private String password;
     private String phoneNumber;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private boolean status;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime startTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime endTime;
     private String storeName;
     private int chairCount;
 }
