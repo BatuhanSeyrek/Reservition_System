@@ -19,6 +19,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,9 @@ public class AdminServiceImpl implements AdminService {
         DtoRegisterAdmin newAdmin = new DtoRegisterAdmin();
         newAdmin.setId(admin.getId());
         newAdmin.setAdminName(admin.getAdminName());
+        newAdmin.setEndTime(admin.getEndTime());
+        newAdmin.setStartTime(admin.getStartTime());
+        newAdmin.setPhoneNumber(admin.getPhoneNumber());
         newAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
         newAdmin.setStoreName(store.getStoreName());
         newAdmin.setChairCount(store.getChairCount());
@@ -73,12 +78,21 @@ public class AdminServiceImpl implements AdminService {
         }
 
         String token = jwtUtil.generateToken(request.getUsername());
-        Optional<Admin> admin = adminRepository.findByAdminName(request.getUsername());
+        Optional<Admin> adminOpt = adminRepository.findByAdminName(request.getUsername());
+        if (adminOpt.isEmpty()) {
+            // Admin bulunamadıysa hata döndür
+            throw new RuntimeException("Kullanıcı bulunamadı");
+        }
 
+        Admin admin = adminOpt.get();
+
+        if (admin.isStatus()==false){
+            throw new RuntimeException("Kullanıcı aktif değil");
+        }
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("token", token);
         responseMap.put("name", request.getUsername());
-        responseMap.put("id", admin.get().getId());
+        responseMap.put("id", admin.getId());
 
         return responseMap;
     }
@@ -88,11 +102,13 @@ public class AdminServiceImpl implements AdminService {
         if (adminRepository.findByAdminName(request.getAdminName()).isPresent()) {
             return ResponseEntity.badRequest().body("İsim önden kullanılmış");
         }
-
         Admin admin = new Admin();
         admin.setAdminName(request.getAdminName());
         admin.setPassword(passwordEncoder.encode(request.getPassword()));
-
+        admin.setStatus(true);
+        admin.setPhoneNumber(request.getPhoneNumber());
+        admin.setStartTime(LocalTime.from(LocalDateTime.now())); // Şu anki tarih ve saat
+        admin.setEndTime(LocalTime.from(LocalDateTime.now().plusDays(32))); // 32 gün sonrası
         // Store, chairs ve employees henüz eklenmemiş olabilir.
         admin.setStore(null);
         admin.setChairs(null);
@@ -128,8 +144,6 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new RuntimeException("Store bulunamadı"));
         admin.setAdminName(request.getAdminName());
         admin.setPassword(passwordEncoder.encode(request.getPassword()));
-
-
         adminRepository.save(admin);
         store.setStoreName(request.getStoreName());
         storeRepository.save(store);

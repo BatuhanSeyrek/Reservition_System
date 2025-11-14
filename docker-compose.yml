@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  central-db:
+    image: postgres:15
+    container_name: central-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: centraldb
+    ports:
+      - "5435:5432"
+    volumes:
+      - central_db_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+volumes:
+  central_db_data:
+
+networks:
+  backend:

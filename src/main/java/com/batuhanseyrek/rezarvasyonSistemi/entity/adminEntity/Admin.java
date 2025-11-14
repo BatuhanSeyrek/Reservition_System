@@ -3,6 +3,7 @@ package com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -21,6 +22,18 @@ public class Admin {
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "phoneNumber", nullable = false)
+    private String phoneNumber;
+
+    @Column(name = "status", nullable = false)
+    private boolean status;
+
+    @Column(name = "start_time", nullable = false)
+    private LocalTime startTime;
+
+    @Column(name = "end_time", nullable = false)
+    private LocalTime endTime;
 
     @OneToOne(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     private Store store;
