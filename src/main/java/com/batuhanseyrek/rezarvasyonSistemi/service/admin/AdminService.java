@@ -2,6 +2,7 @@ package com.batuhanseyrek.rezarvasyonSistemi.service.admin;
 
 import com.batuhanseyrek.rezarvasyonSistemi.dto.request.AuthRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoAdmin;
+import com.batuhanseyrek.rezarvasyonSistemi.dto.response.ReservationResponse;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Admin;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.DtoRegisterAdmin;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,5 +18,5 @@ public interface AdminService {
     List<DtoAdmin> adminList();
     void adminDelete(Long id);
     ResponseEntity<?> adminUpdate(DtoRegisterAdmin request, HttpServletRequest httpRequest);
-
+    List<ReservationResponse> getRezervationForMyAdmin(HttpServletRequest httpServletRequest);
 }

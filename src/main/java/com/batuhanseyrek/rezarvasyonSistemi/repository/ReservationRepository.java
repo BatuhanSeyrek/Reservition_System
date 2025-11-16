@@ -27,4 +27,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("SELECT r FROM Reservation r WHERE r.startTime BETWEEN :start AND :end AND r.reminderSent = false")
     List<Reservation> findReservationsBetween(LocalDateTime start, LocalDateTime end);
 
+    // storeId'ye göre getir
+    List<Reservation> findByStoreId(Long storeId);
 }

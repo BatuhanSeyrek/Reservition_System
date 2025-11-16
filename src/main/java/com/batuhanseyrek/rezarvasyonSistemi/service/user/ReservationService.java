@@ -4,11 +4,9 @@ import com.batuhanseyrek.rezarvasyonSistemi.dto.request.ReservationRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoAdminFull;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoChair;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.ReservationResponse;
-import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Chair;
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -22,4 +20,6 @@ public interface ReservationService {
     void userReservationDelete(HttpServletRequest httpServletRequest,Long id);
     List<Map<String, Object>> getAvailableSlots(Long id);
     List<DtoChair> getChairsByStore(Long storeId);
+    List<ReservationResponse> getReservationsForAdmin(HttpServletRequest request);
+    byte[] exportReservationsToExcel(HttpServletRequest request) throws IOException;
 }

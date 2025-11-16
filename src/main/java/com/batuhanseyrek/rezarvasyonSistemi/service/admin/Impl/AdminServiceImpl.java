@@ -3,10 +3,12 @@ package com.batuhanseyrek.rezarvasyonSistemi.service.admin.Impl;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.DtoConverter;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.request.AuthRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoAdmin;
+import com.batuhanseyrek.rezarvasyonSistemi.dto.response.ReservationResponse;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Admin;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.DtoRegisterAdmin;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Store;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.AdminRepository;
+import com.batuhanseyrek.rezarvasyonSistemi.repository.ReservationRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.StoreRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.security.JwtUtil;
 import com.batuhanseyrek.rezarvasyonSistemi.service.admin.AdminService;
@@ -33,6 +35,8 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     public DtoConverter dtoConverter;
 
+    @Autowired
+    ReservationRepository reservationRepository;
     @Autowired
     public PasswordEncoder passwordEncoder;
 
@@ -148,5 +152,15 @@ public class AdminServiceImpl implements AdminService {
         store.setStoreName(request.getStoreName());
         storeRepository.save(store);
         return ResponseEntity.ok("İşlem başarılı");
+    }
+
+    @Override
+    public List<ReservationResponse> getRezervationForMyAdmin(HttpServletRequest httpServletRequest) {
+        Object attr = httpServletRequest.getAttribute("adminId");
+        return reservationRepository.findAll().stream()
+                .filter(r -> r.getStore().getId().equals(attr))  // sadece admin'in mağazası
+                .map(DtoConverter::toDto)                           // DTO çevirme
+                .collect(Collectors.toList());
+
     }
 }

@@ -10,9 +10,12 @@ import com.batuhanseyrek.rezarvasyonSistemi.repository.ChairRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.service.user.ReservationService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -65,5 +68,22 @@ public List<Map<String, Object>> getAvailableSlots(@PathVariable Long id) {
     @GetMapping("/chairgetbystore/{storeId}")
     public List<DtoChair> getChairsByStore(@PathVariable Long storeId) {
         return storeService.getChairsByStore(storeId);
+    }
+
+    // Son 1 aya ait rezervasyonları JSON olarak döndür
+    @GetMapping("/getMyReservations")
+    public List<ReservationResponse> getMyReservations(HttpServletRequest request) {
+        return storeService.getReservationsForAdmin(request);
+    }
+
+    // Son 6 ayı Excel olarak indir
+    @GetMapping("/exportReservations")
+    public ResponseEntity<byte[]> exportReservations(HttpServletRequest request) throws IOException {
+        byte[] excelData = storeService.exportReservationsToExcel(request);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"reservations.xlsx\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(excelData);
     }
 }

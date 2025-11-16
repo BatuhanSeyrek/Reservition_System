@@ -5,18 +5,24 @@ import com.batuhanseyrek.rezarvasyonSistemi.dto.request.ReservationRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.*;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Admin;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Chair;
-import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Employee;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Store;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.Reservation;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.User;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.*;
+import com.batuhanseyrek.rezarvasyonSistemi.service.NotificationService;
 import com.batuhanseyrek.rezarvasyonSistemi.service.user.ReservationService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -38,7 +44,8 @@ public class ReservationServiceImpl implements ReservationService {
     private UserRepository userRepository;
     @Autowired
     private ReservationRepository reservationRepository;
-
+    @Autowired
+    private NotificationService notificationService; // WebSocket service
     @Override
     public List<DtoAdminFull> storeAll() {
         List<Admin> admins = adminRepository.findAll();
@@ -102,8 +109,15 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setEndTime(endTime);
         reservation.setReminderSent(false);
         try{
-        Reservation saved = reservationRepository.save(reservation);
-        return DtoConverter.toDto(saved);
+            Reservation saved = reservationRepository.save(reservation);
+
+// DTO çevir
+            ReservationResponse dto = DtoConverter.toDto(saved);
+
+// Bildirimi sadece ilgili mağaza admin’ine gönder
+            notificationService.sendNewReservation(dto, saved.getStore().getId());
+
+            return dto;
         }
         catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -267,6 +281,69 @@ public class ReservationServiceImpl implements ReservationService {
 
         return resultList;
     }
+    // Son 1 aya ait rezervasyonları getir
+    public List<ReservationResponse> getReservationsForAdmin(HttpServletRequest request) {
+        Object attr = request.getAttribute("adminId");
+        if (attr == null) throw new RuntimeException("Admin ID bulunamadı");
 
+        Long adminId = Long.valueOf(attr.toString());
+        LocalDate oneMonthAgo = LocalDate.now().minusMonths(1);
 
+        return reservationRepository.findAll().stream()
+                .filter(r -> r.getStore().getId().equals(adminId))
+                .filter(r -> !r.getReservationDate().isBefore(oneMonthAgo))
+                .map(DtoConverter::toDto)
+                .collect(Collectors.toList());
+    }
+
+    // Son 6 ayı Excel olarak export et
+
+    public byte[] exportReservationsToExcel(HttpServletRequest request) throws IOException {
+        Object attr = request.getAttribute("adminId");
+        if (attr == null) throw new RuntimeException("Admin ID bulunamadı");
+
+        Long adminId = Long.valueOf(attr.toString());
+        LocalDate sixMonthsAgo = LocalDate.now().minusMonths(6);
+
+        List<ReservationResponse> reservations = reservationRepository.findAll().stream()
+                .filter(r -> r.getStore().getId().equals(adminId))
+                .filter(r -> !r.getReservationDate().isBefore(sixMonthsAgo))
+                .map(DtoConverter::toDto)
+                .collect(Collectors.toList());
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Reservations");
+
+        // Header
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("ID");
+        header.createCell(1).setCellValue("Başlangıç Saati");
+        header.createCell(2).setCellValue("Bitiş Saati");
+        header.createCell(3).setCellValue("Tarih");
+        header.createCell(4).setCellValue("Koltuk");
+        header.createCell(5).setCellValue("Kullanıcı");
+        header.createCell(6).setCellValue("Çalışan");
+        header.createCell(7).setCellValue("Mağaza");
+
+        // Data
+        int rowNum = 1;
+        for (ReservationResponse r : reservations) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(r.getId());
+            row.createCell(1).setCellValue(r.getStartTime().toString());
+            row.createCell(2).setCellValue(r.getEndTime().toString());
+            row.createCell(3).setCellValue(r.getReservationDate().toString());
+            row.createCell(4).setCellValue(r.getChairName());
+            row.createCell(5).setCellValue(r.getUserName());
+            row.createCell(6).setCellValue(r.getEmployeeName());
+            row.createCell(7).setCellValue(r.getStoreName());
+        }
+
+        // Byte array olarak döndür
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        workbook.write(out);
+        workbook.close();
+
+        return out.toByteArray();
+    }
 }
