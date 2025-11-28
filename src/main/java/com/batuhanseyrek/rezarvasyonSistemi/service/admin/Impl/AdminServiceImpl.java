@@ -144,13 +144,23 @@ public class AdminServiceImpl implements AdminService {
         Object attr = httpRequest.getAttribute("adminId");
         Admin admin = adminRepository.findById((Long) attr)
                 .orElseThrow(() -> new RuntimeException("Admin bulunamadı"));
-        Store store=storeRepository.findById((Long) attr)
+        Store store = storeRepository.findById((Long) attr)
                 .orElseThrow(() -> new RuntimeException("Store bulunamadı"));
+
+        // Admin adı güncelle
         admin.setAdminName(request.getAdminName());
-        admin.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        // Şifre sadece doluysa güncellenecek
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            admin.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
         adminRepository.save(admin);
+
+        // Store adı güncelle
         store.setStoreName(request.getStoreName());
         storeRepository.save(store);
+
         return ResponseEntity.ok("İşlem başarılı");
     }
 
