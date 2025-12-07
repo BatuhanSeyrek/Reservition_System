@@ -66,6 +66,8 @@ public class AdminServiceImpl implements AdminService {
         newAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
         newAdmin.setStoreName(store.getStoreName());
         newAdmin.setChairCount(store.getChairCount());
+        newAdmin.setReferenceId(admin.getReferenceId());
+        newAdmin.setReferenceStatus(admin.isReferenceStatus());
         return newAdmin;
     }
 
@@ -149,6 +151,12 @@ public class AdminServiceImpl implements AdminService {
 
         // Admin adı güncelle
         admin.setAdminName(request.getAdminName());
+        if (admin.isReferenceStatus()==false){
+        admin.setReferenceId(request.getReferenceId());
+            if (!request.getReferenceId().isEmpty()){
+                admin.setReferenceStatus(!admin.isReferenceStatus());
+            }
+        }
 
         // Şifre sadece doluysa güncellenecek
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {

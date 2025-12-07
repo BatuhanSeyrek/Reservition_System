@@ -15,6 +15,8 @@ public class DtoRegisterAdmin {
     private String password;
     private String phoneNumber;
     private boolean status;
+    private String referenceId;
+    private boolean referenceStatus;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime startTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")

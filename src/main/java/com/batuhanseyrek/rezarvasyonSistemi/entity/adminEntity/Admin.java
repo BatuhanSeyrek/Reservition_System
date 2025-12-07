@@ -34,9 +34,16 @@ public class Admin {
     @Column(name = "start_time", nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime startTime;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
+
+    @Column(name = "referenceId", nullable = true)
+    private String referenceId;
+
+    @Column(name = "referenceStatus")
+    private boolean referenceStatus=false;
 
     @OneToOne(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     private Store store;
