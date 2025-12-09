@@ -20,6 +20,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -404,5 +405,61 @@ public class ReservationServiceImpl implements ReservationService {
         workbook.close();
 
         return out.toByteArray();
+    }
+
+    @Override
+    public ResponseEntity<ReservationResponse> addReferenceReservation(ReservationRequest request) {
+
+        // CHAIR KONTROLÜ
+        Chair chair = chairRepository.findById(request.getChairId())
+                .orElseThrow(() -> new RuntimeException("chair bulunamadı"));
+
+        LocalDate reservationDate = request.getReservationDate();
+        LocalDate today = LocalDate.now();
+
+        if (reservationDate.isBefore(today))
+            throw new IllegalArgumentException("Rezervasyon tarihi geçmiş olamaz.");
+
+        if (reservationDate.isAfter(today.plusWeeks(1)))
+            throw new IllegalArgumentException("Rezervasyon sadece 1 hafta sonraya kadar yapılabilir.");
+
+        LocalTime openingTime = chair.getOpeningTime();
+        LocalTime closingTime = chair.getClosingTime();
+        LocalTime startTime = request.getStartTime();
+
+        int durationInMinutes = (int) (chair.getIslemSuresi().toSecondOfDay() / 60);
+        LocalTime endTime = startTime.plusMinutes(durationInMinutes);
+
+        if (startTime.isBefore(openingTime) || endTime.isAfter(closingTime))
+            throw new IllegalArgumentException("Rezervasyon sandalyenin çalışma saatleri dışında.");
+
+        // REZERVASYON OLUŞTUR
+        Reservation reservation = new Reservation();
+        reservation.setChair(chair);
+        reservation.setStore(chair.getStore());
+        reservation.setReservationDate(reservationDate);
+        reservation.setStartTime(startTime);
+        reservation.setEndTime(endTime);
+        reservation.setReminderSent(false);
+
+        // Misafir müşteri alanları
+        reservation.setUser(null);
+        reservation.setCustomerName(request.getCustomerName());
+        reservation.setCustomerSurname(request.getCustomerSurname());
+        reservation.setCustomerPhone(request.getCustomerPhone());
+
+        if (request.getCustomerName() == null || request.getCustomerSurname() == null || request.getCustomerPhone() == null) {
+            throw new IllegalArgumentException("Misafir müşteri için müşteri adı, soyadı ve telefon zorunludur.");
+        }
+
+        Reservation saved = reservationRepository.save(reservation);
+
+        // DTO Çevir
+        ReservationResponse dto = DtoConverter.toDto(saved);
+
+        // Admin bildirim
+        notificationService.sendNewReservation(dto, saved.getStore().getId());
+
+        return ResponseEntity.ok(dto);
     }
 }

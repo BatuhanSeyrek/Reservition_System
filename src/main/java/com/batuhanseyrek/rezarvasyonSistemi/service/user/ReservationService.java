@@ -6,6 +6,7 @@ import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoChair;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.ReservationResponse;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.ReferenceLoginRequest;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,5 +25,6 @@ public interface ReservationService {
     List<DtoChair> getChairsByStore(Long storeId);
     List<ReservationResponse> getReservationsForAdmin(HttpServletRequest request);
     byte[] exportReservationsToExcel(HttpServletRequest request) throws IOException;
+    ResponseEntity<ReservationResponse> addReferenceReservation(ReservationRequest request);
 
 }

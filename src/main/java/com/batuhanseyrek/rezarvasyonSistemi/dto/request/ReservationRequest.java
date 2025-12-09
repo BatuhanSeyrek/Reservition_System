@@ -17,4 +17,12 @@ public class ReservationRequest {
 
     private LocalDate reservationDate;
     private LocalTime startTime;
+
+    // Reference login için eklenen alanlar
+    private String customerName;
+    private String customerSurname;
+    private String customerPhone;
+
+    // Reference login ile geliyorsa userId boş olabilir
+    private Long userId;
 }

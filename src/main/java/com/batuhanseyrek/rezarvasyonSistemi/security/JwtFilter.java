@@ -39,7 +39,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 path.startsWith("/supervisor/adminList") ||
                 path.startsWith("/supervisor/statusChange/{id}") ||
                 path.startsWith("/store/getAvailableSlotsReference") ||
-                path.startsWith("/store/create") ||
+                path.startsWith("/store/referenceReservationAdd") ||
                 path.startsWith("/supervisor/increaseDate/{id}")
 
 

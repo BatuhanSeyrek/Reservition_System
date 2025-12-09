@@ -20,8 +20,17 @@ public class Reservation {
 
     private boolean reminderSent = false;
 
+    @Column(nullable = true)
+    private String customerName;
+
+    @Column(nullable = true)
+    private String customerSurname;
+
+    @Column(nullable = true)
+    private String customerPhone;
+
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @ManyToOne

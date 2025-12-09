@@ -42,6 +42,14 @@ public class ReservationController {
 
         return ResponseEntity.ok(storeService.rezrvationAdd(request,httpRequest));
 }
+    @PostMapping("/referenceReservationAdd")
+    public ResponseEntity<ReservationResponse> addReferenceReservation(
+            @RequestBody ReservationRequest request) {
+        // HttpServletRequest'e token gelmeyeceği için userId null olacak
+        ReservationResponse response = storeService.addReferenceReservation(request).getBody();
+        return ResponseEntity.ok(response);
+    }
+
 @GetMapping("/reservationList")
     public  List<ReservationResponse> reservationList(){
         return storeService.reservationList();
