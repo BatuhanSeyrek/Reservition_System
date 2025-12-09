@@ -2,6 +2,7 @@ package com.batuhanseyrek.rezarvasyonSistemi.service.user;
 
 import com.batuhanseyrek.rezarvasyonSistemi.dto.DtoUser;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.request.AuthRequest;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.ReferenceLoginRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -17,4 +18,5 @@ public interface UserService {
     List<User> userList();
     User userUpdate(HttpServletRequest httpServletRequest, User user);
     ResponseEntity<?> userDelete(Long id);
+    ResponseEntity<Map<String,Object>> refenceIdLogin(ReferenceLoginRequest request);
 }

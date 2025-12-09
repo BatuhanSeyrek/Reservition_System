@@ -2,6 +2,7 @@ package com.batuhanseyrek.rezarvasyonSistemi.controller.user;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.DtoUser;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.request.AuthRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Admin;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.ReferenceLoginRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.User;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.UserRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.security.JwtUtil;
@@ -52,4 +53,8 @@ public List<User> userList(){
     public void userDelete(@PathVariable Long id){
         userService.userDelete(id);
 }
+    @PostMapping("/refenceIdLogin")
+    public ResponseEntity<?> loginAdminReference(@RequestBody ReferenceLoginRequest request) {
+        return userService.refenceIdLogin(request);
+    }
 }

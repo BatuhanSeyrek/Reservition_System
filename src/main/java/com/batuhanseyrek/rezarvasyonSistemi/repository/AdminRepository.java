@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface AdminRepository extends JpaRepository<Admin,Long> {
     Optional<Admin> findByAdminName(String adminname);
     List<Admin> findByStatusAndEndTimeAfter(boolean status, LocalDateTime now);
+
+    Optional<Admin> findByReferenceId(String referenceId);
 }

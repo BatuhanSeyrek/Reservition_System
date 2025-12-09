@@ -6,6 +6,7 @@ import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoAdminFull;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoChair;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.ReservationResponse;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Chair;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.ReferenceLoginRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.ChairRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.service.user.ReservationService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -65,6 +66,11 @@ public class ReservationController {
 public List<Map<String, Object>> getAvailableSlots(@PathVariable Long id) {
         return storeService.getAvailableSlots(id);
 }
+
+    @PostMapping("/getAvailableSlotsReference")
+    public List<Map<String, Object>> getAvailableSlotsReference(@RequestBody ReferenceLoginRequest request) {
+        return storeService.getAvailableSlotsReference(request);
+    }
     @GetMapping("/chairgetbystore/{storeId}")
     public List<DtoChair> getChairsByStore(@PathVariable Long storeId) {
         return storeService.getChairsByStore(storeId);

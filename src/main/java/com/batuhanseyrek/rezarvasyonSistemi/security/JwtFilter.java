@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
@@ -24,22 +24,54 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
 
-            String header = request.getHeader("Authorization");
+        String path = request.getRequestURI();
 
-            if (header!=null && header.startsWith("Bearer ")){
-                String token =header.substring(7);
-                String userName= String.valueOf(jwtUtil.extraUserName(token));
-                if (userName!=null && SecurityContextHolder.getContext().getAuthentication()==null){
-                    UserDetails userDetails= userDetailsService.loadUserByUsername(userName);
-                    if (jwtUtil.isValid(token,userDetails.getUsername())){
-                        UsernamePasswordAuthenticationToken auth =new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
-                        SecurityContextHolder.getContext().setAuthentication(auth);
+        // === TOKEN İSTEMEYEN ENDPOINTLER ===
+        if (path.startsWith("/user/login") ||
+                path.startsWith("/user/register") ||
+                path.startsWith("/admin/login") ||
+                path.startsWith("/user/refenceIdLogin") ||
+                path.startsWith("/supervisor/adminList") ||
+                path.startsWith("/supervisor/statusChange/{id}") ||
+                path.startsWith("/store/getAvailableSlotsReference") ||
+                path.startsWith("/store/create") ||
+                path.startsWith("/supervisor/increaseDate/{id}")
 
-                    }
+
+
+        )
+
+        {
+
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // === NORMAL JWT KONTROL ===
+        String header = request.getHeader("Authorization");
+
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
+            String userName = jwtUtil.extraUserName(token);
+
+            if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+
+                if (jwtUtil.isValid(token, userDetails.getUsername())) {
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities()
+                            );
+                    SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             }
-        filterChain.doFilter(request,response);
+        }
+
+        filterChain.doFilter(request, response);
     }
 }

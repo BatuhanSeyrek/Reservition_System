@@ -6,6 +6,7 @@ import com.batuhanseyrek.rezarvasyonSistemi.dto.response.*;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Admin;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Chair;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Store;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.ReferenceLoginRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.Reservation;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.User;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.*;
@@ -281,6 +282,64 @@ public class ReservationServiceImpl implements ReservationService {
 
         return resultList;
     }
+
+    @Override
+    public List<Map<String, Object>> getAvailableSlotsReference(ReferenceLoginRequest request) {
+        Optional<Admin> admin=adminRepository.findByReferenceId(request.getReferenceId());
+        List<Chair> chairs = chairRepository.findByStoreId(admin.get().getId());
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+
+        for (Chair chair : chairs) {
+            Map<String, Map<String, Boolean>> dateAvailabilityMap = new LinkedHashMap<>();
+
+            long islemSuresiDakika = chair.getIslemSuresi().getHour() * 60L + chair.getIslemSuresi().getMinute();
+            if (islemSuresiDakika <= 0) {
+                throw new IllegalArgumentException("İşlem süresi 0 veya negatif olamaz");
+            }
+
+            LocalTime openingTime = chair.getOpeningTime();
+            LocalTime closingTime = chair.getClosingTime();
+
+            LocalDateTime currentDateTime = LocalDateTime.of(today, openingTime);
+
+            // 7 gün sınırı (bugünden 7 gün sonrası açılış saati)
+            LocalDateTime limitDateTime = LocalDateTime.of(today.plusDays(7), openingTime);
+
+            while (currentDateTime.isBefore(limitDateTime)) {
+                LocalDate currentDate = currentDateTime.toLocalDate();
+                dateAvailabilityMap.putIfAbsent(currentDate.toString(), new LinkedHashMap<>());
+
+                List<Reservation> reservations =
+                        reservationRepository.findByChairAndReservationDate(chair, currentDate);
+
+                LocalTime slotStart = currentDateTime.toLocalTime();
+                LocalTime slotEnd = slotStart.plusMinutes(islemSuresiDakika);
+
+                // Slot kapanış saatini geçmiyorsa ekle
+                if (!slotEnd.isAfter(closingTime)) {
+                    boolean isAvailable = reservations.stream().noneMatch(res ->
+                            res.getStartTime().isBefore(slotEnd) && res.getEndTime().isAfter(slotStart)
+                    );
+                    dateAvailabilityMap.get(currentDate.toString()).put(slotStart.toString(), isAvailable);
+
+                    currentDateTime = currentDateTime.plusMinutes(islemSuresiDakika);
+                } else {
+                    // Gün bitti → ertesi günün açılış saati
+                    currentDateTime = LocalDateTime.of(currentDate.plusDays(1), openingTime);
+                }
+            }
+
+            Map<String, Object> chairInfo = new LinkedHashMap<>();
+            chairInfo.put("chairId", chair.getId());
+            chairInfo.put("chairName", chair.getChairName());
+            chairInfo.put("slots", dateAvailabilityMap);
+            resultList.add(chairInfo);
+        }
+
+        return resultList;
+    }
+
     // Son 1 aya ait rezervasyonları getir
     public List<ReservationResponse> getReservationsForAdmin(HttpServletRequest request) {
         Object attr = request.getAttribute("adminId");

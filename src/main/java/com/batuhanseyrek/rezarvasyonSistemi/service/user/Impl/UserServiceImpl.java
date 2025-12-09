@@ -3,7 +3,9 @@ package com.batuhanseyrek.rezarvasyonSistemi.service.user.Impl;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.DtoUser;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.request.AuthRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Admin;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.ReferenceLoginRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.userEntity.User;
+import com.batuhanseyrek.rezarvasyonSistemi.repository.AdminRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.UserRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.security.JwtUtil;
 import com.batuhanseyrek.rezarvasyonSistemi.service.user.UserService;
@@ -27,6 +29,8 @@ public class UserServiceImpl implements UserService {
     private AuthenticationManager authManager;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AdminRepository adminRepository;
     @Autowired
     private JwtUtil jwtUtil;
     @Autowired
@@ -116,5 +120,40 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<?> userDelete(Long id){
         userRepository.deleteById(id);
         return ResponseEntity.ok("Silme işleme başarılı...");
+    }
+
+    @Override
+    public ResponseEntity<Map<String, Object>> refenceIdLogin(ReferenceLoginRequest request) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        if (request.getReferenceId() == null || request.getReferenceId().isEmpty()) {
+            response.put("status", 400);
+            response.put("error", "referenceId gerekli");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        Optional<Admin> adminOpt = adminRepository.findByReferenceId(request.getReferenceId());
+
+        if (adminOpt.isEmpty()) {
+            response.put("status", 404);
+            response.put("error", "Bu referenceId ile admin bulunamadı");
+            return ResponseEntity.status(404).body(response);
+        }
+
+        Admin admin = adminOpt.get();
+
+        // referenceToken yoksa sakla
+        if (admin.getReferenceId() == null || admin.getReferenceId().isEmpty()) {
+            admin.setReferenceId(request.getReferenceId()); // random YOK
+            adminRepository.save(admin);
+        }
+
+        response.put("referenceId", admin.getReferenceId());
+        response.put("adminName", admin.getAdminName());
+        response.put("id", admin.getId());
+        response.put("status", 200);
+
+        return ResponseEntity.ok(response);
     }
 }
