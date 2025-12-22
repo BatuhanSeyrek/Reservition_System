@@ -152,6 +152,7 @@ public class UserServiceImpl implements UserService {
         response.put("referenceId", admin.getReferenceId());
         response.put("adminName", admin.getAdminName());
         response.put("id", admin.getId());
+        response.put("storeName", admin.getStore().getStoreName());
         response.put("status", 200);
 
         return ResponseEntity.ok(response);

@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,58 +75,94 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public ReservationResponse rezrvationAdd(ReservationRequest request, HttpServletRequest httpRequest) {
+    public ReservationResponse rezrvationAdd(
+            ReservationRequest request,
+            HttpServletRequest httpRequest
+    ) {
+
+        // 🔐 User kontrolü (opsiyonel)
         Object attr = httpRequest.getAttribute("userId");
-        User user = userRepository.findById((Long) attr).orElseThrow(() -> new RuntimeException("user bulunamadı"));
+        User user = null;
+
+        if (attr != null) {
+            user = userRepository.findById((Long) attr)
+                    .orElseThrow(() -> new RuntimeException("user bulunamadı"));
+        }
 
         Chair chair = chairRepository.findById(request.getChairId())
                 .orElseThrow(() -> new RuntimeException("chair bulunamadı"));
 
+        // 📅 Tarih kontrolleri
         LocalDate reservationDate = request.getReservationDate();
         LocalDate today = LocalDate.now();
 
         if (reservationDate.isBefore(today)) {
             throw new IllegalArgumentException("Rezervasyon tarihi geçmiş olamaz.");
         }
+
         if (reservationDate.isAfter(today.plusWeeks(1))) {
             throw new IllegalArgumentException("Rezervasyon sadece 1 hafta sonraya kadar yapılabilir.");
         }
 
+        // ⏰ Saat hesapları
         LocalTime openingTime = chair.getOpeningTime();
         LocalTime closingTime = chair.getClosingTime();
         LocalTime startTime = request.getStartTime();
+
         int durationInMinutes = (int) (chair.getIslemSuresi().toSecondOfDay() / 60);
         LocalTime endTime = startTime.plusMinutes(durationInMinutes);
 
         if (startTime.isBefore(openingTime) || endTime.isAfter(closingTime)) {
             throw new IllegalArgumentException("Rezervasyon süresi sandalye çalışma saatleri dışında.");
         }
-        List<Reservation> conflicts;
 
+        // 🧠 USER / MİSAFİR MANTIĞI
+        boolean isUserReservation = user != null;
+        boolean isGuestReservation =
+                request.getCustomerName() != null &&
+                        request.getCustomerSurname() != null &&
+                        request.getCustomerPhone() != null;
+
+        if (!isUserReservation && !isGuestReservation) {
+            throw new IllegalArgumentException(
+                    "Rezervasyon için ya giriş yapılmalı ya da müşteri bilgileri girilmelidir."
+            );
+        }
+
+        if (isUserReservation && isGuestReservation) {
+            throw new IllegalArgumentException(
+                    "Kullanıcı rezervasyonunda müşteri bilgileri girilemez."
+            );
+        }
+
+        // 🧱 Reservation oluşturma
         Reservation reservation = new Reservation();
         reservation.setChair(chair);
-        reservation.setUser(user);
         reservation.setStore(chair.getStore());
         reservation.setReservationDate(reservationDate);
         reservation.setStartTime(startTime);
         reservation.setEndTime(endTime);
         reservation.setReminderSent(false);
-        try{
-            Reservation saved = reservationRepository.save(reservation);
 
-// DTO çevir
-            ReservationResponse dto = DtoConverter.toDto(saved);
-
-// Bildirimi sadece ilgili mağaza admin’ine gönder
-            notificationService.sendNewReservation(dto, saved.getStore().getId());
-
-            return dto;
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+        if (isUserReservation) {
+            reservation.setUser(user);
+        } else {
+            reservation.setCustomerName(request.getCustomerName());
+            reservation.setCustomerSurname(request.getCustomerSurname());
+            reservation.setCustomerPhone(request.getCustomerPhone());
         }
 
+        Reservation saved = reservationRepository.save(reservation);
+
+        // 🔄 DTO
+        ReservationResponse dto = DtoConverter.toDto(saved);
+
+        // 🔔 Bildirim
+        notificationService.sendNewReservation(dto, saved.getStore().getId());
+
+        return dto;
     }
+
 
     @Override
     public List<ReservationResponse> reservationList() {
@@ -202,10 +239,12 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public List<ReservationResponse> userReservationGet(HttpServletRequest httpServletRequest) {
         Object attr = httpServletRequest.getAttribute("userId");
+
         User user = userRepository.findById((Long) attr)
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
 
         return reservationRepository.findAll().stream()
+                .filter(res -> res.getUser() != null) // 🔴 KRİTİK
                 .filter(res -> res.getUser().getId().equals(user.getId()))
                 .map(DtoConverter::toDto)
                 .collect(Collectors.toList());
@@ -359,6 +398,7 @@ public class ReservationServiceImpl implements ReservationService {
     // Son 6 ayı Excel olarak export et
 
     public byte[] exportReservationsToExcel(HttpServletRequest request) throws IOException {
+
         Object attr = request.getAttribute("adminId");
         if (attr == null) throw new RuntimeException("Admin ID bulunamadı");
 
@@ -372,34 +412,43 @@ public class ReservationServiceImpl implements ReservationService {
                 .collect(Collectors.toList());
 
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Reservations");
+        Sheet sheet = workbook.createSheet("Rezervasyonlar");
 
-        // Header
+        DateTimeFormatter trFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
+        /* ================= HEADER ================= */
         Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("ID");
+        header.createCell(0).setCellValue("Tarih");
         header.createCell(1).setCellValue("Başlangıç Saati");
         header.createCell(2).setCellValue("Bitiş Saati");
-        header.createCell(3).setCellValue("Tarih");
-        header.createCell(4).setCellValue("Koltuk");
-        header.createCell(5).setCellValue("Kullanıcı");
+        header.createCell(3).setCellValue("Koltuk");
+        header.createCell(4).setCellValue("Kullanıcı");
+        header.createCell(5).setCellValue("Telefon");
         header.createCell(6).setCellValue("Çalışan");
         header.createCell(7).setCellValue("Mağaza");
 
-        // Data
+        /* ================= DATA ================= */
         int rowNum = 1;
         for (ReservationResponse r : reservations) {
             Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(r.getId());
+
+            row.createCell(0).setCellValue(
+                    r.getReservationDate().format(trFormatter)
+            );
             row.createCell(1).setCellValue(r.getStartTime().toString());
             row.createCell(2).setCellValue(r.getEndTime().toString());
-            row.createCell(3).setCellValue(r.getReservationDate().toString());
-            row.createCell(4).setCellValue(r.getChairName());
-            row.createCell(5).setCellValue(r.getUserName());
+            row.createCell(3).setCellValue(r.getChairName());
+            row.createCell(4).setCellValue(r.getUserName());
+            row.createCell(5).setCellValue(r.getPhoneNumber());
             row.createCell(6).setCellValue(r.getEmployeeName());
             row.createCell(7).setCellValue(r.getStoreName());
         }
 
-        // Byte array olarak döndür
+        /* 🔹 AUTO SIZE */
+        for (int i = 0; i <= 7; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         workbook.close();

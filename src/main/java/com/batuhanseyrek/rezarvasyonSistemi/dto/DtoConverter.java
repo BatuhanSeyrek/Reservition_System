@@ -49,35 +49,38 @@ public class DtoConverter {
     }
 
     public static ReservationResponse toDto(Reservation reservation) {
+
         ReservationResponse dto = new ReservationResponse();
+
         dto.setId(reservation.getId());
         dto.setStartTime(reservation.getStartTime());
         dto.setEndTime(reservation.getEndTime());
         dto.setReservationDate(reservation.getReservationDate());
-        dto.setChairId(reservation.getChair().getId());
-        dto.setChairName(
-                reservation.getChair() != null ? reservation.getChair().getChairName() : null
-        );
 
-        dto.setUserName(
-                reservation.getUser() != null ? reservation.getUser().getUserName() : null
-        );
+        dto.setChairName(reservation.getChair().getChairName());
+        dto.setChairId(reservation.getChair().getId());
 
         dto.setEmployeeName(
-                (reservation.getChair() != null &&
-                        reservation.getChair().getEmployee() != null)
+                reservation.getChair() != null && reservation.getChair().getEmployee() != null
                         ? reservation.getChair().getEmployee().getEmployeeName()
                         : null
         );
 
-        dto.setStoreId(
-                reservation.getStore() != null ? reservation.getStore().getId() : null
-        );
+        dto.setStoreId(reservation.getStore().getId());
+        dto.setStoreName(reservation.getStore().getStoreName());
 
-        dto.setStoreName(
-                reservation.getStore() != null ? reservation.getStore().getStoreName() : null
-        );
+        // 🔥 TELEFON KARARI TEK NOKTADA
+        if (reservation.getUser() != null) {
+            dto.setUserName(reservation.getUser().getUserName());
+            dto.setPhoneNumber(reservation.getUser().getPhoneNumber());
+            dto.setGuest(false);
+        } else {
+            dto.setUserName(reservation.getCustomerName() + " " + reservation.getCustomerSurname());
+            dto.setPhoneNumber(reservation.getCustomerPhone());
+            dto.setGuest(true);
+        }
 
         return dto;
     }
+
 }
