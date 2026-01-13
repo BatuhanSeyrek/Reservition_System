@@ -22,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(adminInterceptor)
                 .addPathPatterns("/admin/chair/**", "/admin/employee/**","/admin/update/**","/admin/myAdmin","/admin/chair/**","/admin/getRezervationForMyAdmin","/store/getMyReservations","/store/exportReservations");
         registry.addInterceptor(userInterceptor)
-                .addPathPatterns("/store/create/**","/store/userReservationGet/**","/store/userReservationDelete/**","/store/reservationUpdate/**","/store/getAvailableSlots/**","/user/myUser","/user/update"); // İstediğin pathleri ekle
+                .addPathPatterns("/store/create/**","/store/userReservationGet/**","/store/userReservationDelete/**","/store/reservationUpdate/**","/store/getAvailableSlots/**","/user/myUser","/user/update","/api/favorites/toggle/**", "/api/favorites/my-favorites"); // İstediğin pathleri ekle
 
     }
 

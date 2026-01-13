@@ -15,9 +15,7 @@ import com.batuhanseyrek.rezarvasyonSistemi.service.user.ReservationService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -403,12 +401,16 @@ public class ReservationServiceImpl implements ReservationService {
         if (attr == null) throw new RuntimeException("Admin ID bulunamadı");
 
         Long adminId = Long.valueOf(attr.toString());
+        // React tarafındaki gibi son 6 ayı veya ihtiyacınız olan aralığı filtreleyebilirsiniz
         LocalDate sixMonthsAgo = LocalDate.now().minusMonths(6);
 
         List<ReservationResponse> reservations = reservationRepository.findAll().stream()
                 .filter(r -> r.getStore().getId().equals(adminId))
                 .filter(r -> !r.getReservationDate().isBefore(sixMonthsAgo))
                 .map(DtoConverter::toDto)
+                // Tarihe göre sıralama eklemek Excel'de daha profesyonel görünür
+                .sorted(Comparator.comparing(ReservationResponse::getReservationDate)
+                        .thenComparing(ReservationResponse::getStartTime))
                 .collect(Collectors.toList());
 
         Workbook workbook = new XSSFWorkbook();
@@ -416,36 +418,42 @@ public class ReservationServiceImpl implements ReservationService {
 
         DateTimeFormatter trFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
+        /* ================= HEADER STYLING (Opsiyonel: Başlığı kalın yapar) ================= */
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        headerStyle.setFont(font);
+
         /* ================= HEADER ================= */
         Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("Tarih");
-        header.createCell(1).setCellValue("Başlangıç Saati");
-        header.createCell(2).setCellValue("Bitiş Saati");
-        header.createCell(3).setCellValue("Koltuk");
-        header.createCell(4).setCellValue("Kullanıcı");
-        header.createCell(5).setCellValue("Telefon");
-        header.createCell(6).setCellValue("Çalışan");
-        header.createCell(7).setCellValue("Mağaza");
+        String[] columns = {"Tarih", "Başlangıç", "Bitiş", "Koltuk", "Kullanıcı", "Durum", "Telefon", "Çalışan"};
+
+        for (int i = 0; i < columns.length; i++) {
+            Cell cell = header.createCell(i);
+            cell.setCellValue(columns[i]);
+            cell.setCellStyle(headerStyle);
+        }
 
         /* ================= DATA ================= */
         int rowNum = 1;
         for (ReservationResponse r : reservations) {
             Row row = sheet.createRow(rowNum++);
 
-            row.createCell(0).setCellValue(
-                    r.getReservationDate().format(trFormatter)
-            );
+            row.createCell(0).setCellValue(r.getReservationDate().format(trFormatter));
             row.createCell(1).setCellValue(r.getStartTime().toString());
             row.createCell(2).setCellValue(r.getEndTime().toString());
             row.createCell(3).setCellValue(r.getChairName());
             row.createCell(4).setCellValue(r.getUserName());
-            row.createCell(5).setCellValue(r.getPhoneNumber());
-            row.createCell(6).setCellValue(r.getEmployeeName());
-            row.createCell(7).setCellValue(r.getStoreName());
+
+            // React'taki badge mantığı: r.isGuest() durumuna göre Üye/Misafir yazıyoruz
+            row.createCell(5).setCellValue(r.isGuest() ? "Misafir" : "Üye");
+
+            row.createCell(6).setCellValue(r.getPhoneNumber());
+            row.createCell(7).setCellValue(r.getEmployeeName());
         }
 
         /* 🔹 AUTO SIZE */
-        for (int i = 0; i <= 7; i++) {
+        for (int i = 0; i < columns.length; i++) {
             sheet.autoSizeColumn(i);
         }
 
