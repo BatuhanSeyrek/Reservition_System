@@ -3,6 +3,7 @@ package com.batuhanseyrek.rezarvasyonSistemi.dto.response;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoAdmin;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoChair;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoEmployee;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Address;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -14,6 +14,7 @@ import java.util.Map;
 
 public interface ReservationService {
     List<DtoAdminFull> storeAll();
+    List<DtoAdminFull> store();
     ReservationResponse rezrvationAdd(ReservationRequest request, HttpServletRequest httpRequest);
     List<ReservationResponse> reservationList();
     void reservationDelete(Long id);

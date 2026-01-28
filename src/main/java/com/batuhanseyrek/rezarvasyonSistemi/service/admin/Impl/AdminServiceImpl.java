@@ -4,9 +4,11 @@ import com.batuhanseyrek.rezarvasyonSistemi.dto.DtoConverter;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.request.AuthRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.DtoAdmin;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.ReservationResponse;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Address;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Admin;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.DtoRegisterAdmin;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Store;
+import com.batuhanseyrek.rezarvasyonSistemi.repository.AddressRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.AdminRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.ReservationRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.StoreRepository;
@@ -37,6 +39,8 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     ReservationRepository reservationRepository;
+    @Autowired
+    AddressRepository addressRepository;
     @Autowired
     public PasswordEncoder passwordEncoder;
 
@@ -126,7 +130,11 @@ public class AdminServiceImpl implements AdminService {
         store.setStoreName(request.getStoreName());
         store.setAdmin(admin);
         storeRepository.save(store);
-
+        Address address = new Address();
+        address.setDistrict(request.getDistrict());
+        address.setCity(request.getCity());
+        address.setAdmin(admin);
+        addressRepository.save(address);
         return ResponseEntity.ok("Kayıt başarılı");
     }
 

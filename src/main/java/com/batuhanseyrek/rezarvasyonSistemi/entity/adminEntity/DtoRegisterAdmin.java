@@ -1,6 +1,7 @@
 package com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -23,4 +24,6 @@ public class DtoRegisterAdmin {
     private LocalDateTime endTime;
     private String storeName;
     private int chairCount;
+    private String city;
+    private String district;
 }

@@ -48,6 +48,9 @@ public class Admin {
     @OneToOne(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     private Store store;
 
+    @OneToOne(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Address address;
+
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chair> chairs;
 

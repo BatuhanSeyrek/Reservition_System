@@ -31,29 +31,22 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // === TOKEN İSTEMEYEN ENDPOINTLER ===
+        // === TOKEN KONTROLÜNDEN MUAF YOLLAR ===
+        // startsWith kullanarak supervisor altındaki tüm yolları tek seferde kapsıyoruz
         if (path.startsWith("/user/login") ||
                 path.startsWith("/user/register") ||
                 path.startsWith("/admin/login") ||
+                path.startsWith("/admin/register") ||
                 path.startsWith("/user/refenceIdLogin") ||
-                path.startsWith("/supervisor/adminList") ||
-                path.startsWith("/supervisor/") ||
-                path.startsWith("/supervisor/statusChange/{id}") ||
+                path.startsWith("/supervisor/") || // Bu satır tüm supervisor işlemlerini kurtarır
                 path.startsWith("/store/getAvailableSlotsReference") ||
                 path.startsWith("/store/referenceReservationAdd") ||
-                path.startsWith("/supervisor/increaseDate/{id}")
-
-
-
-        )
-
-        {
-
+                path.startsWith("/store/store")
+        ) {
             filterChain.doFilter(request, response);
-            return;
+            return; // Muaf yollar için filtrenin geri kalanını çalıştırmıyoruz
         }
 
-        // === NORMAL JWT KONTROL ===
         String header = request.getHeader("Authorization");
 
         if (header != null && header.startsWith("Bearer ")) {
@@ -72,7 +65,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
         }
-
         filterChain.doFilter(request, response);
     }
 }

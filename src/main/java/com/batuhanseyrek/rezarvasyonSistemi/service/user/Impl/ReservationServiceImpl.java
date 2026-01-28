@@ -3,6 +3,7 @@ package com.batuhanseyrek.rezarvasyonSistemi.service.user.Impl;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.DtoConverter;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.request.ReservationRequest;
 import com.batuhanseyrek.rezarvasyonSistemi.dto.response.*;
+import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Address;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Admin;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Chair;
 import com.batuhanseyrek.rezarvasyonSistemi.entity.adminEntity.Store;
@@ -47,11 +48,38 @@ public class ReservationServiceImpl implements ReservationService {
     private ReservationRepository reservationRepository;
     @Autowired
     private NotificationService notificationService; // WebSocket service
+    @Autowired
+    public AddressRepository addressRepository;
     @Override
     public List<DtoAdminFull> storeAll() {
         List<Admin> admins = adminRepository.findAll();
         List<DtoAdminFull> result = new ArrayList<>();
 
+        for (Admin admin : admins) {
+            Store store = admin.getStore();
+
+
+            if (store == null) continue;
+            List<DtoChair> adminChairs = admin.getChairs().stream()
+                    .map(DtoConverter::toDto)
+                    .toList();
+
+            List<DtoEmployee> adminEmployees = admin.getEmployees().stream()
+                    .map(DtoConverter::toDto)
+                    .toList();
+            DtoStore adminStore = DtoConverter.toDto(admin.getStore());
+            DtoAdmin dtoAdmin = DtoConverter.toDto(admin);
+            if (admin.isStatus()==true){
+            result.add(new DtoAdminFull(dtoAdmin, adminChairs, adminEmployees,adminStore));
+            }
+        }
+
+        return result;
+    }
+    @Override
+    public List<DtoAdminFull> store() {
+        List<Admin> admins = adminRepository.findAll();
+        List<DtoAdminFull> result = new ArrayList<>();
         for (Admin admin : admins) {
             Store store = admin.getStore();
             if (store == null) continue;
@@ -65,8 +93,9 @@ public class ReservationServiceImpl implements ReservationService {
                     .toList();
             DtoStore adminStore = DtoConverter.toDto(admin.getStore());
             DtoAdmin dtoAdmin = DtoConverter.toDto(admin);
-
-            result.add(new DtoAdminFull(dtoAdmin, adminChairs, adminEmployees,adminStore));
+            if (admin.isStatus()==true){
+                result.add(new DtoAdminFull(dtoAdmin, adminChairs, adminEmployees,adminStore));
+            }
         }
 
         return result;

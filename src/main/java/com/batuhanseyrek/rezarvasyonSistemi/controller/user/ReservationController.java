@@ -36,6 +36,11 @@ public class ReservationController {
 
         return ResponseEntity.ok(storeService.storeAll()).getBody();
     }
+    @GetMapping(path = "/store")
+    public List<DtoAdminFull> store(){
+
+        return ResponseEntity.ok(storeService.storeAll()).getBody();
+    }
     @PostMapping("/create")
     public ResponseEntity<?> createReservation(@RequestBody ReservationRequest request,
                                                     HttpServletRequest httpRequest) {
