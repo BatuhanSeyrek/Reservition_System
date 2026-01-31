@@ -34,7 +34,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(cors -> {}).csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/user/login", "/user/register","/admin/register","/admin/login","/supervisor/adminList","/supervisor/statusChange/{id}","/supervisor/increaseDate/{id}","/user/refenceIdLogin","/store/getAvailableSlotsReference","/store/referenceReservationAdd","/store/store").permitAll()
+                        .requestMatchers("/user/login", "/user/register","/admin/register","/admin/login","/supervisor/adminList","/supervisor/statusChange/{id}","/supervisor/increaseDate/{id}","/user/refenceIdLogin","/store/getAvailableSlotsReference","/store/referenceReservationAdd","/store/storee").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

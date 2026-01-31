@@ -36,7 +36,7 @@ public class ReservationController {
 
         return ResponseEntity.ok(storeService.storeAll()).getBody();
     }
-    @GetMapping(path = "/store")
+    @GetMapping(path = "/storee")
     public List<DtoAdminFull> store(){
 
         return ResponseEntity.ok(storeService.storeAll()).getBody();

@@ -18,4 +18,5 @@ public class DtoAdminFull {
     private List<DtoChair> chairs;
     private List<DtoEmployee> employees;
     private DtoStore store;
+    private DtoAddress address;
 }

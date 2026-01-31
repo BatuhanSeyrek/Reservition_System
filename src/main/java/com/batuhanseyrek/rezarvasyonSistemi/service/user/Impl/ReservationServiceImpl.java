@@ -54,10 +54,19 @@ public class ReservationServiceImpl implements ReservationService {
     public List<DtoAdminFull> storeAll() {
         List<Admin> admins = adminRepository.findAll();
         List<DtoAdminFull> result = new ArrayList<>();
+        List<Address> addresses = addressRepository.findAll();
 
         for (Admin admin : admins) {
             Store store = admin.getStore();
-
+            DtoAddress newaddress = new DtoAddress();
+            for (Address address: addresses){
+                if (address.getAdmin().getId()==admin.getId()){
+                    newaddress.setId(address.getId());
+                    newaddress.setAdmin_id(address.getAdmin().getId());
+                    newaddress.setDistrict(address.getDistrict());
+                    newaddress.setCity(address.getCity());
+                }
+            }
 
             if (store == null) continue;
             List<DtoChair> adminChairs = admin.getChairs().stream()
@@ -70,7 +79,7 @@ public class ReservationServiceImpl implements ReservationService {
             DtoStore adminStore = DtoConverter.toDto(admin.getStore());
             DtoAdmin dtoAdmin = DtoConverter.toDto(admin);
             if (admin.isStatus()==true){
-            result.add(new DtoAdminFull(dtoAdmin, adminChairs, adminEmployees,adminStore));
+            result.add(new DtoAdminFull(dtoAdmin, adminChairs, adminEmployees,adminStore,newaddress));
             }
         }
 
@@ -80,9 +89,19 @@ public class ReservationServiceImpl implements ReservationService {
     public List<DtoAdminFull> store() {
         List<Admin> admins = adminRepository.findAll();
         List<DtoAdminFull> result = new ArrayList<>();
+        List<Address> addresses = addressRepository.findAll();
         for (Admin admin : admins) {
             Store store = admin.getStore();
             if (store == null) continue;
+            DtoAddress newaddress = new DtoAddress();
+            for (Address address: addresses){
+                if (address.getAdmin().getId()==admin.getId()){
+                    newaddress.setId(address.getId());
+                    newaddress.setAdmin_id(address.getAdmin().getId());
+                    newaddress.setDistrict(address.getDistrict());
+                    newaddress.setCity(address.getCity());
+                }
+            }
 
             List<DtoChair> adminChairs = admin.getChairs().stream()
                     .map(DtoConverter::toDto)
@@ -94,7 +113,7 @@ public class ReservationServiceImpl implements ReservationService {
             DtoStore adminStore = DtoConverter.toDto(admin.getStore());
             DtoAdmin dtoAdmin = DtoConverter.toDto(admin);
             if (admin.isStatus()==true){
-                result.add(new DtoAdminFull(dtoAdmin, adminChairs, adminEmployees,adminStore));
+                result.add(new DtoAdminFull(dtoAdmin, adminChairs, adminEmployees,adminStore,newaddress));
             }
         }
 
