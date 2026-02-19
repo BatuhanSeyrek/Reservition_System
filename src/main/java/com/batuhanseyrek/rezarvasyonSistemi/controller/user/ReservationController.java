@@ -79,6 +79,10 @@ public class ReservationController {
 public List<Map<String, Object>> getAvailableSlots(@PathVariable Long id) {
         return storeService.getAvailableSlots(id);
 }
+@GetMapping("/gettAvailableSlotss/{id}")
+public List<Map<String, Object>> gettAvailableSlotss(@PathVariable Long id) {
+        return storeService.getAvailableSlots(id);
+}
 
     @PostMapping("/getAvailableSlotsReference")
     public List<Map<String, Object>> getAvailableSlotsReference(@RequestBody ReferenceLoginRequest request) {

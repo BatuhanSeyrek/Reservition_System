@@ -41,7 +41,8 @@ public class JwtFilter extends OncePerRequestFilter {
                 path.startsWith("/supervisor/") || // Bu satır tüm supervisor işlemlerini kurtarır
                 path.startsWith("/store/getAvailableSlotsReference") ||
                 path.startsWith("/store/referenceReservationAdd") ||
-                path.startsWith("/store/storee")
+                path.startsWith("/store/storee")||
+                path.startsWith("/store/gettAvailableSlotss")
         ) {
             filterChain.doFilter(request, response);
             return; // Muaf yollar için filtrenin geri kalanını çalıştırmıyoruz

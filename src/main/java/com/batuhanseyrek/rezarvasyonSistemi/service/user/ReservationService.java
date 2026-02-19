@@ -22,6 +22,7 @@ public interface ReservationService {
     List<ReservationResponse> userReservationGet(HttpServletRequest httpServletRequest);
     void userReservationDelete(HttpServletRequest httpServletRequest,Long id);
     List<Map<String, Object>> getAvailableSlots(Long id);
+    List<Map<String, Object>> gettAvailableSlotss(Long id);
     List<Map<String, Object>> getAvailableSlotsReference(ReferenceLoginRequest referenceId);
     List<DtoChair> getChairsByStore(Long storeId);
     List<ReservationResponse> getReservationsForAdmin(HttpServletRequest request);
