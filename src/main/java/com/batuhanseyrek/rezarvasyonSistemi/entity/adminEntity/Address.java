@@ -21,4 +21,8 @@ public class Address {
     private String city;      // İl
     @Column(name = "district")
     private String district;  // İlçe
+    @Column(name = "latitude")
+    private Double latitude;  // Enlem
+    @Column(name = "longitude")
+    private Double longitude; // Boylam
 }

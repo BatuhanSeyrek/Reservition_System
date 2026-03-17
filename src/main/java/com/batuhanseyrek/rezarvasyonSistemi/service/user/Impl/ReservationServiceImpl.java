@@ -65,6 +65,8 @@ public class ReservationServiceImpl implements ReservationService {
                     newaddress.setAdmin_id(address.getAdmin().getId());
                     newaddress.setDistrict(address.getDistrict());
                     newaddress.setCity(address.getCity());
+                    newaddress.setLatitude(address.getLatitude());
+                    newaddress.setLongitude(address.getLongitude());
                 }
             }
 
@@ -100,6 +102,8 @@ public class ReservationServiceImpl implements ReservationService {
                     newaddress.setAdmin_id(address.getAdmin().getId());
                     newaddress.setDistrict(address.getDistrict());
                     newaddress.setCity(address.getCity());
+                    newaddress.setLatitude(address.getLatitude());
+                    newaddress.setLongitude(address.getLongitude());
                 }
             }
 

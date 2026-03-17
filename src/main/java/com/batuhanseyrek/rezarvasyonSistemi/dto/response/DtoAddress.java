@@ -13,4 +13,6 @@ public class DtoAddress {
     private Long admin_id;
     private String city;
     private String district;
+    private double latitude;  // Enlem
+    private double longitude; // Boylam
 }

@@ -156,7 +156,7 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new RuntimeException("Admin bulunamadı"));
         Store store = storeRepository.findById((Long) attr)
                 .orElseThrow(() -> new RuntimeException("Store bulunamadı"));
-
+        Address address = (Address) addressRepository.findByAdmin_Id((Long) attr).orElseThrow(() -> new RuntimeException("Adres bulunamadı"));
         // Admin adı güncelle
         admin.setAdminName(request.getAdminName());
         if (admin.isReferenceStatus()==false){
@@ -164,6 +164,10 @@ public class AdminServiceImpl implements AdminService {
             if (!request.getReferenceId().isEmpty()){
                 admin.setReferenceStatus(!admin.isReferenceStatus());
             }
+            address.setLatitude(request.getLatitude());
+            address.setLongitude(request.getLongitude());
+            addressRepository.save(address);
+
         }
 
         // Şifre sadece doluysa güncellenecek

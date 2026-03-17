@@ -26,4 +26,6 @@ public class DtoRegisterAdmin {
     private int chairCount;
     private String city;
     private String district;
+    private double latitude;  // Enlem
+    private double longitude; // Boylam
 }
