@@ -20,4 +20,5 @@ public class DtoUser {
     private NotificationType notificationType;
     private String userName;
     private String password;
+    private Boolean kvkk;
 }

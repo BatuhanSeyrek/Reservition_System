@@ -78,13 +78,16 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findByUserName(request.getUserName()).isPresent()){
             return ResponseEntity.badRequest().body("Bu kullanıcı adı zaten var");
         }
+        if (request.getKvkk()==true){
         User newUser = new User();
         newUser.setUserName(request.getUserName());
         newUser.setPassword(passwordEncoder.encode( request.getPassword()));
         newUser.setEmail(request.getEmail());
         newUser.setPhoneNumber(request.getPhoneNumber());
         newUser.setNotificationType(request.getNotificationType());
-        return ResponseEntity.ok().body(String.valueOf(userRepository.save(newUser))) ;
+        return ResponseEntity.ok().body(String.valueOf(userRepository.save(newUser))) ;}
+        else
+            return ResponseEntity.badRequest().body("kvkk onayı yok");
     }
     @Override
     public List<User> userList(){

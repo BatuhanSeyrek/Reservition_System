@@ -26,4 +26,6 @@ public class User {
     private String userName;
     @Column(name="password",nullable = false)
     private String password;
+    @Column(name="kvkk")
+    private Boolean kvkk;
 }
