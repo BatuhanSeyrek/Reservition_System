@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface EmployeeService {
     DtoEmployee employeeAdd(DtoEmployee request, HttpServletRequest httpRequest);
-    List<DtoEmployee> employeeList();
+    List<DtoEmployee> employeeList(HttpServletRequest httpRequest);
     void employeeDelete(Long id);
     ResponseEntity<?> employeeUpdate(Long id, Employee request);
     List<DtoEmployee> getEmployeeByAdmin( HttpServletRequest httpServletRequest);

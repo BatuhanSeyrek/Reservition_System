@@ -21,8 +21,8 @@ public class EmployeeController {
         return employeeService.employeeAdd(dtoEmployee,httpRequest);
     }
     @GetMapping(path = "/list")
-    public List<DtoEmployee> employeeList(){
-        return employeeService.employeeList();
+    public List<DtoEmployee> employeeList(HttpServletRequest httpRequest){
+        return employeeService.employeeList(httpRequest);
     }
     @DeleteMapping(path = "/delete/{id}")
     public void employeeDelete(@PathVariable Long id){

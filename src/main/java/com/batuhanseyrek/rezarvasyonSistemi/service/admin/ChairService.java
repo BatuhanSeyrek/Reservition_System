@@ -10,7 +10,7 @@ import java.util.List;
 public interface ChairService {
     List<DtoChair> getChairsByAdmin( HttpServletRequest httpServletRequest);
     DtoChair chairAdd(DtoChair request, HttpServletRequest httpRequest);
-    List<DtoChair> chairList();
+    List<DtoChair> chairList( HttpServletRequest httpRequest);
     void chairDelete(Long id);
     ResponseEntity<?> chairUpdate(Long id, Chair chair);
 

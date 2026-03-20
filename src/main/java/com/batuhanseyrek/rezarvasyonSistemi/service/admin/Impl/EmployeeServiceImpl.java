@@ -62,8 +62,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
     }
 
-    public List<DtoEmployee> employeeList(){
-        List<Employee> employees = employeeRepository.findAll();
+    public List<DtoEmployee> employeeList(HttpServletRequest httpRequest){
+        Object attr = httpRequest.getAttribute("adminId");
+        if (attr == null) {
+            throw new RuntimeException("Admin ID bulunamadı");
+        }
+        Long adminId = (Long) attr;
+        List<Employee> employees = employeeRepository.findByAdmin_Id(adminId);
         return employees.stream()
                 .map(DtoConverter::toDto)
                 .collect(Collectors.toList());

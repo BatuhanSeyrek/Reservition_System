@@ -9,8 +9,6 @@ import com.batuhanseyrek.rezarvasyonSistemi.repository.AdminRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.ChairRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.repository.StoreRepository;
 import com.batuhanseyrek.rezarvasyonSistemi.service.admin.ChairService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -75,8 +73,12 @@ public class ChairServiceImpl implements ChairService {
     }
 
     @Override
-    public List<DtoChair> chairList() {
-        List<Chair> chairs = chairRepository.findAll();
+    public List<DtoChair> chairList( HttpServletRequest httpRequest) {
+        Object attr = httpRequest.getAttribute("adminId");
+        if (attr == null) {
+            throw new RuntimeException("Admin kimliği bulunamadı");
+        }
+        Optional<Chair> chairs = chairRepository.findByAdmin_Id((Long) attr);
         return chairs.stream()
                 .map(DtoConverter::toDto)   // Class adıyla çağır, instance değil
                 .collect(Collectors.toList());

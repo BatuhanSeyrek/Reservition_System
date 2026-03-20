@@ -25,8 +25,8 @@ public class ChairController {
         return adminSkillsService.chairAdd(request,httpRequest);
     }
     @GetMapping(path = "/list")
-    public List<DtoChair> chairlist(){
-        return adminSkillsService.chairList();
+    public List<DtoChair> chairlist( HttpServletRequest httpRequest){
+        return adminSkillsService.chairList(httpRequest);
     }
     @DeleteMapping(path = "/delete/{id}")
     public void chairdelete(@PathVariable Long id){
